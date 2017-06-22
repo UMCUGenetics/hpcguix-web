@@ -24,18 +24,20 @@
   '(("/" "Search")
     ("/getting-started" "Get started")
     ("/faq" "Frequently asked questions")
-    ;("/workflows" "Workflows")
-    ;("/status" "System status")
-    ("/help" "Help")
-    ))
+    ("/help" "Help")))
 
 (define (page-partial-main-menu request-path)
   `(ul
     ,(map
       (lambda (item)
-        (if (string= (substring (car item) 1) (car (string-split (substring request-path 1) #\/)))
-            `(li (@ (class "active")) ,(cadr item))
-            `(li (a (@ (href ,(car item))) ,(cadr item)))))
+        (cond
+         ((string= (substring (car item) 1) (car (string-split (substring request-path 1) #\/)))
+          `(li (@ (class "active")) ,(cadr item)))
+         ((and (string= "package" (car (string-split (substring request-path 1) #\/)))
+               (string= (car item) "/"))
+          `(li (@ (class "active")) (a (@ (href "/")) "← back to search")))
+         (else
+          `(li (a (@ (href ,(car item))) ,(cadr item))))))
       pages)))
 
 (define* (page-root-template title request-path content-tree #:key (dependencies '(test)))
@@ -63,12 +65,13 @@
       (div (@ (id "wrapper"))
            (div (@ (id "header"))
                 (div (@ (class "title"))
-                     (h1 ,title))
+                     (h1 (img (@ (src "/static/logo.png") (class "logo")))
+                         (span (@ (class "title-text")) "GuixHPC"))) ; ,title
                 (div (@ (class "menu"))
                      ,(page-partial-main-menu request-path)))
            (div (@ (id "content"))
                 ,content-tree)
            (div (@ (id "footer"))
-                (p "© 2017 Roel Janssen | "
-                   (a (@ (href "https://git.roelj.com/guix/guix-hpcweb"))
-                         "Download the source code of this page") ".")))))))
+                (p "Made with λ by the GNU Guix hackers — Copyright © 2017. "
+                   (a (@ (href "https://github.com/UMCUGenetics/hpcguix-web"))
+                      "Download the source code of this page") ".")))))))

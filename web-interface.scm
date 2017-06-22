@@ -11,6 +11,7 @@
   #:use-module (www config)
   #:use-module (www pages)
   #:use-module (www pages error)
+  #:use-module (www pages package)
   #:use-module (www pages welcome)
 
   #:export (run-web-interface))
@@ -61,9 +62,10 @@
                           (get-bytevector-all (current-input-port))))))))))
 
 (define (request-package-handler request-path)
-  (call-with-output-string
-    (lambda (port)
-      (sxml->xml (page-error-404 request-path) port))))
+  (values '((content-type . (text/html)))
+          (call-with-output-string
+            (lambda (port)
+              (sxml->xml (page-package request-path) port)))))
 
 (define (request-scheme-page-handler request request-body request-path)
 
@@ -127,8 +129,8 @@
      ((and (> (string-length request-path) 7)
            (string= (string-take request-path 8) "/static/"))
       (request-file-handler request-path))
-     ((and (> (string-length request-path) 9)
-           (string= (string-take request-path 10) "/package/"))
+     ((and (> (string-length request-path) 8)
+           (string= (string-take request-path 9) "/package/"))
       (request-package-handler request-path))
      (else
       (request-scheme-page-handler request request-body request-path)))))

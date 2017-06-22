@@ -40,6 +40,11 @@ WWW_STATIC_RESOURCES =                                  \
   static/images/g16.png                                 \
   static/images/grid.png                                \
   static/images/grid.svg                                \
+  static/images/sort_asc.png                            \
+  static/images/sort_asc_disabled.png                   \
+  static/images/sort_both.png                           \
+  static/images/sort_desc.png                           \
+  static/logo.png                                       \
   static/highlight/highlight.pack.js                    \
   static/highlight/LICENSE                              \
   static/highlight/styles/androidstudio.css             \
