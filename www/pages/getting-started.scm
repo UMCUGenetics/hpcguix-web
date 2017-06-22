@@ -23,5 +23,28 @@
    "Getting started with GNU Guix" request-path
    `((h2 "Getting started with GNU Guix on the cluster")
 
-     (h3 "Enable the " (code "guixr") " command")
-     (p "..."))))
+     (p "GNU Guix is a software package manager available on our computing "
+        "cluster that helps you get your software tools to work, and helps "
+        "others reproducing your usage of these tools.")
+
+     (p "To use GNU Guix, you need to add the following lines to your "
+        (code "$HOME/.bashrc") " file:")
+
+     (pre (code (@ (class "bash"))
+                "export GUIX_LOCPATH=\"/gnu/profiles/base/lib/locale\"
+export PATH=$PATH:\"/gnu/profiles/base/bin\""))
+
+     (p "This page contains the instructions to get started with GNU "
+        "Guix.  We try not to bore you with unneccessary technicalities.  So, "
+        "please choose whatever is most applicable to you:")
+
+     (ul
+      (li (a (@ (href "/getting-started/scientists"))
+             "GNU Guix for scientists"))
+      (li (a (@ (href "/getting-started/bioinformaticians"))
+             "GNU Guix for (bio)informaticians"))
+      (li (a (@ (href "/solutions")) "Common problems and solutions")))
+
+     (p "Of course, feel free to read whatever is not applicable to you."))
+   #:dependencies '(highlight)))
+

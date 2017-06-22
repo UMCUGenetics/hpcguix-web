@@ -23,7 +23,7 @@
 (define pages
   '(("/" "Search")
     ("/getting-started" "Get started")
-    ("/faq" "Frequently asked questions")
+    ("/solutions" "Common problems and solutions")
     ("/help" "Help")))
 
 (define (page-partial-main-menu request-path)
