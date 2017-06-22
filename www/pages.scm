@@ -49,7 +49,7 @@
                (type "image/x-icon")
                (href "/static/favicon.ico")))
       ,(if (memq 'highlight dependencies)
-         `((link (@ (rel "stylesheet") (href "/static/highlight/styles/androidstudio.css")))
+         `((link (@ (rel "stylesheet") (href "/static/highlight/styles/github.css")))
            (script (@ (src "/static/highlight/highlight.pack.js")) "")
            (script "hljs.initHighlightingOnLoad();"))
          `())
@@ -65,7 +65,7 @@
       (div (@ (id "wrapper"))
            (div (@ (id "header"))
                 (div (@ (class "title"))
-                     (h1 (img (@ (src "/static/logo.png") (class "logo")))
+                     (h1 (img (@ (src "/static/images/logo.png") (class "logo")))
                          (span (@ (class "title-text")) "GuixHPC"))) ; ,title
                 (div (@ (class "menu"))
                      ,(page-partial-main-menu request-path)))

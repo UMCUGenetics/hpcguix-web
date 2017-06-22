@@ -34,12 +34,8 @@ body,html {
     font-family: 'Roboto', sans-serif;
     font-size: 11pt;
     color: #000000;
-    background: -webkit-linear-gradient(#dddddd, #cccccc);
-    background: -o-linear-gradient(#dddddd, #cccccc);
-    background: -moz-linear-gradient(#dddddd, #cccccc);
-    background: linear-gradient(#dddddd, #cccccc);
-    background-color: #cccccc;
-    background-repeat: no-repeat;
+    background: url('/static/images/cubes.png');
+    background-repeat: repeat;
 }
 
 #wrapper {
@@ -87,7 +83,7 @@ a:hover { color: #555555; }
 
 #content {
     padding: 10pt;
-    background: #ffffff /*#93a7ac*/;
+    background: linear-gradient(#ffffff, #eeeeee);
     line-height: 1.5;
     text-align: justify;
     text-justify: inter-word;
@@ -119,7 +115,13 @@ a:hover { color: #555555; }
     border-radius: 4pt;
 }
 #content table td { padding: 2pt 4pt 2pt 4pt; font-size: 11pt; height: 25pt; }
-#content table tr:nth-child(even) td { background: #f3f3f3f3; }
+#stand-by {
+    background: #decd87;
+    -webkit-border-radius: 4pt;
+    -moz-border-radius: 4pt;
+    border-radius: 4pt;
+}
+#stand-by p { padding: 5pt }
 #footer { width: 100% font-size: small; text-align: center; }
 
 #workarea {

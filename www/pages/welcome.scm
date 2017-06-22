@@ -30,6 +30,7 @@
                      (aria-controls "packages-table")
                      (placeholder "Search"))))
      (hr)
+     (div (@ (id "stand-by")) (p "Please wait for the package data to load..."))
      (table (@ (id "packages-table")
                (class "display")
                (width "100%")
@@ -45,6 +46,11 @@ function feed_table(packages) {
     var dt = $('#packages-table').DataTable({
                 sDom: 'lrtip',
                 data: packages,
+                processing: true,
+                createdRow: function (row, data, index) {
+                                $('#stand-by').hide();
+                                $('#packages-table').show();
+                            },
                 columns: [
                     { data: 'name',
                       mRender: function (data, type, full) {
@@ -64,6 +70,7 @@ function feed_table(packages) {
     });
 }
 $(document).ready(function() {
+    $('#packages-table').hide();
     $.getJSON('/packages.json', feed_table);
 });
 "))

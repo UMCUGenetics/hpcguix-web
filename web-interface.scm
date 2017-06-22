@@ -95,8 +95,6 @@
          (append prefix (list (string->symbol (car elements))))
          (cdr elements))
         (append prefix (list (string->symbol (car elements))))))
-
-  (format #t "~a ~a~%" (request-method request) request-path)
   (values '((content-type . (text/html)))
           (call-with-output-string
             (lambda (port)
@@ -144,6 +142,7 @@
 ;; ----------------------------------------------------------------------------
 (define (request-handler request request-body)
   (let ((request-path (uri-path (request-uri request))))
+    (format #t "~a ~a~%" (request-method request) request-path)
     (cond
      ((string= request-path "/packages.json")
       (request-packages-json-handler))

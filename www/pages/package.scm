@@ -61,8 +61,9 @@
                  packages)
 
            (h2 "After installation")
-           (p "Your package has been installed into a profile.  By default, this "
-              "is your “user” profile.  You can change the default by appending "
+           (p "After running the installation command, your package has been "
+              "installed into a profile.  By default, this is your “user” "
+              "profile.  You can change the default by appending "
               (code "--profile=/path/to/profile") " to the installation command, "
               "where " (code "/path/to/profile") " can be any filesystem "
               "location.")
