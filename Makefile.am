@@ -24,6 +24,7 @@ SOURCES =                                               \
   www/config.scm                                        \
   www/util.scm                                          \
   www/pages.scm                                         \
+  www/pages/package.scm                                 \
   www/pages/error.scm                                   \
   www/pages/faq.scm                                     \
   www/pages/getting-started.scm                         \
