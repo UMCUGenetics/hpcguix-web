@@ -64,7 +64,7 @@ function feed_table(packages) {
     });
 }
 $(document).ready(function() {
-    $.getJSON('/static/packages.json', feed_table);
+    $.getJSON('/packages.json', feed_table);
 });
 "))
    #:dependencies '(datatables)))

@@ -118,7 +118,8 @@ a:hover { color: #555555; }
     -moz-border-radius: 4pt;
     border-radius: 4pt;
 }
-#content table td { padding: 2pt 4pt 2pt 4pt; font-size: 11pt; }
+#content table td { padding: 2pt 4pt 2pt 4pt; font-size: 11pt; height: 25pt; }
+#content table tr:nth-child(even) td { background: #f3f3f3f3; }
 #footer { width: 100% font-size: small; text-align: center; }
 
 #workarea {

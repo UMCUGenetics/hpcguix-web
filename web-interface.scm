@@ -4,9 +4,15 @@
   #:use-module (web response)
   #:use-module (web uri)
   #:use-module (ice-9 rdelim)
+  #:use-module (ice-9 match)
   #:use-module (rnrs bytevectors)
   #:use-module (rnrs io ports)
   #:use-module (sxml simple)
+  #:use-module (guix utils)
+  #:use-module (guix packages)
+  #:use-module (guix licenses)
+  #:use-module (gnu packages)
+  #:use-module (json)
   #:use-module (www util)
   #:use-module (www config)
   #:use-module (www pages)
@@ -27,6 +33,19 @@
 ;;
 ;; In this section, the different handlers are implemented.
 ;;
+
+(define (request-packages-json-handler)
+  (let ((all-packages (fold-packages cons '()))
+        (package->json (lambda (package)
+                         (json (object
+                                ("name"     ,(package-name package))
+                                ("version"  ,(package-version package))
+                                ("synopsis" ,(package-synopsis package))
+                                ("homepage" ,(package-home-page package)))))))
+    (values '((content-type . (application/javascript)))
+            (with-output-to-string
+              (lambda _
+                (scm->json (map package->json all-packages)))))))
 
 (define (request-file-handler path)
   "This handler takes data from a file and sends that as a response."
@@ -126,6 +145,8 @@
 (define (request-handler request request-body)
   (let ((request-path (uri-path (request-uri request))))
     (cond
+     ((string= request-path "/packages.json")
+      (request-packages-json-handler))
      ((and (> (string-length request-path) 7)
            (string= (string-take request-path 8) "/static/"))
       (request-file-handler request-path))
