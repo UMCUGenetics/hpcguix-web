@@ -1,0 +1,169 @@
+@font-face {
+    font-family: 'Roboto';
+    src: url('/static/fonts/Roboto-Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto-Italic';
+    src: url('/static/fonts/Roboto-LightItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Roboto-Bold';
+    src: url('/static/fonts/Roboto-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: bold;
+}
+
+@font-face {
+    font-family: 'FiraMono';
+    src: url('/static/fonts/FiraMono-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: bold;
+}
+
+body,html {
+    width: 100%;
+    height: 100%;
+    padding: 0pt;
+    margin: 0pt;
+    font-family: 'Roboto', sans-serif;
+    font-size: 11pt;
+    color: #000000;
+    background: -webkit-linear-gradient(#dddddd, #cccccc);
+    background: -o-linear-gradient(#dddddd, #cccccc);
+    background: -moz-linear-gradient(#dddddd, #cccccc);
+    background: linear-gradient(#dddddd, #cccccc);
+    background-color: #cccccc;
+    background-repeat: no-repeat;
+}
+
+#wrapper {
+    max-width: 900pt;
+    margin: auto;
+    padding: 0pt;
+    margin: 0pt auto auto auto;
+}
+
+#header {
+}
+
+#header .title { padding: 5pt 5pt 0pt 5pt; }
+#header .title h1 { padding: 0pt; margin: 0pt; }
+
+#header .menu { padding: 5pt 5pt 0pt 5pt; }
+#header .menu ul { display: inline-block; padding: 0pt; margin: 0pt; }
+#header .menu li {
+    display: inline-block;
+    list-style-type: none;
+    margin: 0pt;
+    margin: 0pt 10pt 0pt 0pt;
+    padding: 2pt 2pt 0pt 2pt;
+    -webkit-border-radius: 4pt 4pt 0pt 0pt;
+    -moz-border-radius: 4pt 4pt 0pt 0pt;
+    border-radius: 4pt 4pt 0pt 0pt;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-size: small;
+}
+
+#header .menu li.active {
+    background: #ffffff;
+    padding: 5pt 5pt 2pt 5pt;
+}
+
+a { color: #000000; }
+a:hover { color: #555555; }
+
+#content {
+    padding: 10pt;
+    background: #ffffff /*#93a7ac*/;
+    line-height: 1.5;
+    text-align: justify;
+    text-justify: inter-word;
+    -webkit-border-radius: 4pt;
+    -moz-border-radius: 4pt;
+    border-radius: 4pt;
+}
+#content .search-field {
+    border: solid 1px #999;
+    width: 100%;
+    padding: 5pt;
+    -webkit-border-radius: 4pt;
+    -moz-border-radius: 4pt;
+    border-radius: 4pt;
+}
+
+#content p { margin: 0pt; padding: 5pt 0pt 5pt 0pt; }
+#content h2 { margin: 0pt; padding-bottom: 5pt; }
+#content h3 { margin: 0pt; padding-bottom: 5pt; }
+#content h4 { margin: 0pt; padding-bottom: 5pt; }
+#content ul { padding: 0pt 0pt 0pt 10pt; margin: 0pt 0pt 0pt 10pt; }
+#content li { line-height: 1.5em; }
+#content pre { padding: 0pt; margin: 0pt; }
+#footer { width: 100% font-size: small; text-align: center; }
+
+#workarea {
+    border: solid 2pt #000000;
+    -webkit-border-radius: 4pt;
+    -moz-border-radius: 4pt;
+    border-radius: 4pt;
+    background-image: url('/static/images/grid.png');
+    background-repeat: repeat;
+    background-color: #eeeeee;
+    width: 100%;
+    text-align: center;
+}
+
+div.figure {
+    text-align: center;
+    font-style: italic;
+    font-size: smaller;
+    text-indent: 0;
+    border: thin #cccccc solid;
+    margin: 0.5em;
+    padding: 0.5em;
+}
+
+code {
+    text-align: left;
+    font-family: 'FiraMono', monospace;
+    font-size: 10pt;
+    font-style: normal;
+    background: #eeeeee;
+    padding: 1pt;
+    -webkit-border-radius: 2pt;
+    -moz-border-radius: 2pt;
+    border-radius: 2pt;
+    border: solid thin #cccccc;
+} 
+
+div.action-button {
+    display: inline-block;
+    font-size: 16pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: #d38d5f;
+    padding: 4pt;
+    -webkit-border-radius: 4pt;
+    -moz-border-radius: 4pt;
+    border-radius: 4pt;
+    border: solid 2pt #000000;
+}
+
+div.action-button a {
+    text-decoration: none;
+}
+
+div.action-button a:hover {
+    text-decoration: none;
+    color: #111111;
+}
+
+div.action-button:hover {
+    background: #a05a2c;
+}
