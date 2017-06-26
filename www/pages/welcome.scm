@@ -20,7 +20,7 @@
 
 (define (page-welcome request-path)
   (page-root-template "Search" request-path
-   `((h2 "Find software packages and workflows")
+   `((h2 "Find software packages")
 
      (form
       (input (@ (type "search")
