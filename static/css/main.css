@@ -124,6 +124,11 @@ a:hover { color: #555555; }
 #stand-by p { padding: 5pt }
 #footer { width: 100% font-size: small; text-align: center; }
 
+#packages-table {
+    width: 100%;
+    border-spacing: 0pt;
+}
+
 #workarea {
     border: solid 2pt #000000;
     -webkit-border-radius: 4pt;

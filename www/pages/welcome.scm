@@ -22,19 +22,16 @@
   (page-root-template "Search" request-path
    `((h2 "Find software packages and workflows")
 
-     (form (@ (method "post")
-              (submit "/packages"))
-           (input (@ (type "search")
-                     (id "search-field")
-                     (class "search-field")
-                     (aria-controls "packages-table")
-                     (placeholder "Search"))))
+     (form
+      (input (@ (type "search")
+                (id "search-field")
+                (class "search-field")
+                (aria-controls "packages-table")
+                (placeholder "Search"))))
      (hr)
      (div (@ (id "stand-by")) (p "Please wait for the package data to load..."))
      (table (@ (id "packages-table")
-               (class "display")
-               (width "100%")
-               (cellspacing "0"))
+               (class "display"))
             (thead
              (tr
               (th "Name")
