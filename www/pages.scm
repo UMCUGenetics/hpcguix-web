@@ -67,7 +67,7 @@
                 (div (@ (class "title"))
                      (h1 (img (@ (src "/static/images/logo.png")
                                  (class "logo")
-                                 (alt "GuixHPC"))
+                                 (alt "GuixHPC")))
                          (span (@ (class "title-text")) "GuixHPC"))) ; ,title
                 (div (@ (class "menu"))
                      ,(page-partial-main-menu request-path)))
