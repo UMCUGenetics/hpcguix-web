@@ -70,22 +70,30 @@
 ;;
 
 (define (request-packages-json-handler)
-  (let ((all-packages (fold-packages cons '()))
-        (package->json (lambda (package)
-                         (json (object
-                                ("name"     ,(package-name package))
-                                ("version"  ,(package-version package))
-                                ("synopsis" ,(package-synopsis package))
-                                ("homepage" ,(package-home-page package)))))))
-    (values '((content-type . (application/javascript)))
-            (with-output-to-string
-              (lambda _
-                (scm->json
-                 (map package->json
-                      (lset-difference
-                       (lambda (a b)
-                         (string= (package-name a) b))
-                       all-packages %package-blacklist))))))))
+  (let ((packages-file (string-append %www-root "/packages.json"))
+        (cache-timeout-file (string-append %www-root "/cache.timeout")))
+    ;; Write the packages JSON to disk to speed up the page load.
+    ;; This caching mechanism prevents new packages from propagating
+    ;; into the search.  For this, we can manually create a file
+    ;; "cache.timeout" in the %www-root.
+    (when (or (not (access? packages-file F_OK))
+              (access? cache-timeout-file F_OK))
+      (let ((all-packages (fold-packages cons '()))
+            (package->json (lambda (package)
+                             (json (object
+                                    ("name"     ,(package-name package))
+                                    ("version"  ,(package-version package))
+                                    ("synopsis" ,(package-synopsis package))
+                                    ("homepage" ,(package-home-page package)))))))
+        (with-output-to-file packages-file
+          (lambda _
+            (scm->json (map package->json
+                            (lset-difference
+                             (lambda (a b)
+                               (string= (package-name a) b))
+                             all-packages %package-blacklist)))))
+        (delete-file cache-timeout-file)))
+    (request-file-handler "packages.json")))
 
 (define (request-file-handler path)
   "This handler takes data from a file and sends that as a response."
