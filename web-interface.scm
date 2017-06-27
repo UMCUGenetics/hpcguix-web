@@ -23,6 +23,40 @@
 
   #:export (run-web-interface))
 
+(define %package-blacklist
+  '("cataclysm-dda"                "freedoom"          "gnubg"
+    "gnubik"                       "gnushogi"          "prboom-plus"
+    "retux"                        "xshogi"            "abbaye"
+    "angband"                      "pingus"            "talkfilters"
+    "cmatrix"                      "chess"             "freedink-engine"
+    "freedink-data"                "freedink"          "xboard"
+    "xboing"                       "gtypist"           "irrlicht"
+    "mars"                         "minetest-data"     "minetest"
+    "glkterm"                      "glulxe"            "fizmo"
+    "retroarch"                    "gnugo"             "extremetuxracer"
+    "supertuxkart"                 "gnujump"           "wesnoth"
+    "dosbox"                       "gamine"            "raincat"
+    "manaplus"                     "mupen64plus-core"
+    "mupen64plus-audio-sdl"        "mupen64plus-input-sdl"
+    "mupen64plus-rsp-hle"          "mupen64plus-rsp-z64"
+    "mupen64plus-video-arachnoid"  "mupen64plus-video-glide64"
+    "mupen64plus-video-glide64mk2" "mupen64plus-video-rice"
+    "mupen64plus-video-z64"        "mupen64plus-ui-console"
+    "nestopia-ue"                  "emulation-station" "openttd-engine"
+    "openttd-opengfx"              "openttd"           "pinball"
+    "pioneers"                     "desmume"           "einstein"
+    "powwow"                       "red-eclipse"       "higan"
+    "grue-hunter"                  "lierolibre"        "warzone2100"
+    "starfighter"                  "chromium-bsu"      "tuxpaint"
+    "tuxpaint-stamps"              "tuxpaint-config"   "supertux"
+    "tintin++"                     "laby"              "bambam"
+    "mrrescue"                     "hyperrogue"        "kobodeluxe"
+    "freeciv"                      "no-more-secrets"   "megaglest-data"
+    "megaglest"                    "freegish"          "cdogs-sdl"
+    "kiki"                         "teeworlds"         "enigma"
+    "fillets-ng"                   "crawl"             "crawl-tiles"
+    "lugaru"                       "0ad-data"          "0ad"
+    "open-adventure"               "aisleriot"))
 
 ;; ----------------------------------------------------------------------------
 ;; HANDLERS
@@ -48,105 +82,10 @@
               (lambda _
                 (scm->json
                  (map package->json
-                      (delete
-                       #f
-                       (map (lambda (item)
-                              (cond
-                               ;; Blacklist the games..
-                               ((string= (package-name item) "cataclysm-dda") #f)
-                               ((string= (package-name item) "freedoom") #f)
-                               ((string= (package-name item) "gnubg") #f)
-                               ((string= (package-name item) "gnubik") #f)
-                               ((string= (package-name item) "gnushogi") #f)
-                               ((string= (package-name item) "prboom-plus") #f)
-                               ((string= (package-name item) "retux") #f)
-                               ((string= (package-name item) "xshogi") #f)
-                               ((string= (package-name item) "abbaye") #f)
-                               ((string= (package-name item) "angband") #f)
-                               ((string= (package-name item) "pingus") #f)
-                               ((string= (package-name item) "talkfilters") #f)
-                               ((string= (package-name item) "cmatrix") #f)
-                               ((string= (package-name item) "chess") #f)
-                               ((string= (package-name item) "freedink-engine") #f)
-                               ((string= (package-name item) "freedink-data") #f)
-                               ((string= (package-name item) "freedink") #f)
-                               ((string= (package-name item) "xboard") #f)
-                               ((string= (package-name item) "xboing") #f)
-                               ((string= (package-name item) "gtypist") #f)
-                               ((string= (package-name item) "irrlicht") #f)
-                               ((string= (package-name item) "mars") #f)
-                               ((string= (package-name item) "minetest-data") #f)
-                               ((string= (package-name item) "minetest") #f)
-                               ((string= (package-name item) "glkterm") #f)
-                               ((string= (package-name item) "glulxe") #f)
-                               ((string= (package-name item) "fizmo") #f)
-                               ((string= (package-name item) "retroarch") #f)
-                               ((string= (package-name item) "gnugo") #f)
-                               ((string= (package-name item) "extremetuxracer") #f)
-                               ((string= (package-name item) "supertuxkart") #f)
-                               ((string= (package-name item) "gnujump") #f)
-                               ((string= (package-name item) "wesnoth") #f)
-                               ((string= (package-name item) "dosbox") #f)
-                               ((string= (package-name item) "gamine") #f)
-                               ((string= (package-name item) "raincat") #f)
-                               ((string= (package-name item) "manaplus") #f)
-                               ((string= (package-name item) "mupen64plus-core") #f)
-                               ((string= (package-name item) "mupen64plus-audio-sdl") #f)
-                               ((string= (package-name item) "mupen64plus-input-sdl") #f)
-                               ((string= (package-name item) "mupen64plus-rsp-hle") #f)
-                               ((string= (package-name item) "mupen64plus-rsp-z64") #f)
-                               ((string= (package-name item) "mupen64plus-video-arachnoid") #f)
-                               ((string= (package-name item) "mupen64plus-video-glide64") #f)
-                               ((string= (package-name item) "mupen64plus-video-glide64mk2") #f)
-                               ((string= (package-name item) "mupen64plus-video-rice") #f)
-                               ((string= (package-name item) "mupen64plus-video-z64") #f)
-                               ((string= (package-name item) "mupen64plus-ui-console") #f)
-                               ((string= (package-name item) "nestopia-ue") #f)
-                               ((string= (package-name item) "emulation-station") #f)
-                               ((string= (package-name item) "openttd-engine") #f)
-                               ((string= (package-name item) "openttd-opengfx") #f)
-                               ((string= (package-name item) "openttd") #f)
-                               ((string= (package-name item) "pinball") #f)
-                               ((string= (package-name item) "pioneers") #f)
-                               ((string= (package-name item) "desmume") #f)
-                               ((string= (package-name item) "einstein") #f)
-                               ((string= (package-name item) "powwow") #f)
-                               ((string= (package-name item) "red-eclipse") #f)
-                               ((string= (package-name item) "higan") #f)
-                               ((string= (package-name item) "grue-hunter") #f)
-                               ((string= (package-name item) "lierolibre") #f)
-                               ((string= (package-name item) "warzone2100") #f)
-                               ((string= (package-name item) "starfighter") #f)
-                               ((string= (package-name item) "chromium-bsu") #f)
-                               ((string= (package-name item) "tuxpaint") #f)
-                               ((string= (package-name item) "tuxpaint-stamps") #f)
-                               ((string= (package-name item) "tuxpaint-config") #f)
-                               ((string= (package-name item) "supertux") #f)
-                               ((string= (package-name item) "tintin++") #f)
-                               ((string= (package-name item) "laby") #f)
-                               ((string= (package-name item) "bambam") #f)
-                               ((string= (package-name item) "mrrescue") #f)
-                               ((string= (package-name item) "hyperrogue") #f)
-                               ((string= (package-name item) "kobodeluxe") #f)
-                               ((string= (package-name item) "freeciv") #f)
-                               ((string= (package-name item) "no-more-secrets") #f)
-                               ((string= (package-name item) "megaglest-data") #f)
-                               ((string= (package-name item) "megaglest") #f)
-                               ((string= (package-name item) "freegish") #f)
-                               ((string= (package-name item) "cdogs-sdl") #f)
-                               ((string= (package-name item) "kiki") #f)
-                               ((string= (package-name item) "teeworlds") #f)
-                               ((string= (package-name item) "enigma") #f)
-                               ((string= (package-name item) "fillets-ng") #f)
-                               ((string= (package-name item) "crawl") #f)
-                               ((string= (package-name item) "crawl-tiles") #f)
-                               ((string= (package-name item) "lugaru") #f)
-                               ((string= (package-name item) "0ad-data") #f)
-                               ((string= (package-name item) "0ad") #f)
-                               ((string= (package-name item) "open-adventure") #f)
-                               ((string= (package-name item) "aisleriot") #f)
-                               (else item)))
-                            all-packages)))))))))
+                      (lset-difference
+                       (lambda (a b)
+                         (string= (package-name a) b))
+                       all-packages %package-blacklist))))))))
 
 (define (request-file-handler path)
   "This handler takes data from a file and sends that as a response."
