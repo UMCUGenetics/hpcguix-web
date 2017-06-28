@@ -24,6 +24,7 @@
   '(("/" "Search")
     ("/getting-started" "Get started")
     ("/solutions" "Common problems and solutions")
+    ("/build-status" "Build status")
     ("/help" "Help")))
 
 (define (page-partial-main-menu request-path)
