@@ -28,6 +28,7 @@ SOURCES =                                               \
   www/pages/error.scm                                   \
   www/pages/solutions.scm                               \
   www/pages/getting-started.scm                         \
+  www/pages/build-status.scm                            \
   www/pages/welcome.scm
 
 WWW_STATIC_RESOURCES =                                  \
