@@ -61,6 +61,16 @@ $ guixr package -s ^samtools$"))
     (p "To install packages, for example " (code bwa) ", we can use the "
        "following command:")
 
+    (pre
+     (code (@ (class "bash"))
+       "$ guixr package --install=bwa --profile=$PROJECT_ROOT/.guix-profile"))
+
+    (p "Or its equivalent using “shorthand” notation:")
+
+    (pre
+     (code (@ (class "bash"))
+           "$ guixr package -i bwa -p $PROJECT_ROOT/.guix-profile"))
+
     (p "The newly installed programs install into " (code "$HOME/.guix-profile")
        ". To be able to use them, you need to set the environment variables. To "
        "obtain an overview of which environment variables to set, use:")
