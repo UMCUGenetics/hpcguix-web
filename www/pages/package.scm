@@ -20,7 +20,20 @@
   #:use-module (gnu packages)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (ice-9 rdelim)
   #:export (page-package))
+
+(define (scheme-variable-name file line)
+
+  (define (get-definition port current-line target-line)
+    (let ((line (read-line port)))
+      (if (< current-line target-line)
+          (get-definition port (1+ current-line) target-line)
+          (cadr (string-split line #\ )))))
+
+  (call-with-input-file file
+    (lambda (port)
+      (get-definition port 2 line))))
 
 (define (page-package request-path)
   (let* ((name (list-ref (string-split request-path #\/) 2))
@@ -47,6 +60,12 @@
                                    ,(string-append (location-file location) ":"
                                                    (number->string
                                                     (location-line location))))))
+                        (tr
+                         (td (strong "Symbol name"))
+                         (td (code (@ (class "nobg"))
+                                   ,(scheme-variable-name
+                                     (location-file location)
+                                     (number->string (location-line location))))))
                         (tr
                          (td (@ (style "width: 150pt")) (strong "Installation command"))
                          (td (pre (code (@ (class "bash"))
