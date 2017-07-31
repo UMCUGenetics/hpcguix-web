@@ -25,15 +25,22 @@
 
 (define (scheme-variable-name file line)
 
+  (define (search-path* path file)
+    "Like 'search-path' but exit if FILE is not found."
+    (let ((absolute-file-name (search-path path file)))
+      (unless absolute-file-name
+        ;; Shouldn't happen unless somebody fiddled with the 'location' field.
+        (leave (G_ "file '~a' not found in search path ~s~%")
+               file path))
+      absolute-file-name))
+  
   (define (get-definition port current-line target-line)
     (let ((line (read-line port)))
       (if (< current-line target-line)
           (get-definition port (1+ current-line) target-line)
           (cadr (string-split line #\ )))))
 
-  (let ((file (if (string= (string-take file 3) "gnu")
-                  (string-append "/gnu/repositories/guix/" file)
-                  (string-append "/gnu/repositories/guix-additions/" file))))
+  (let ((file (search-path* %load-path file)))
     (call-with-input-file file
       (lambda (port)
         (get-definition port 2 line)))))

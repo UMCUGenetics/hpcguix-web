@@ -39,7 +39,7 @@
           `(li (@ (class "active"))
                (a (@ (href "/")
                      (onclick "history.go(-1); return false;"))
-                     "← back to search")))
+                  "← back to search")))
          (else
           `(li (a (@ (href ,(car item))) ,(cadr item))))))
       pages)))
