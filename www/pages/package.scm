@@ -31,10 +31,13 @@
           (get-definition port (1+ current-line) target-line)
           (cadr (string-split line #\ )))))
 
-  (call-with-input-file file
-    (lambda (port)
-      (get-definition port 2 line))))
-
+  (let ((file (if (string= (string-take file 3) "gnu")
+                  (string-append "/gnu/repositories/guix/" file)
+                  (string-append "/gnu/repositories/guix-additions/" file))))
+    (call-with-input-file file
+      (lambda (port)
+        (get-definition port 2 line)))))
+    
 (define (page-package request-path)
   (let* ((name (list-ref (string-split request-path #\/) 2))
          (packages (find-packages-by-name name)))
@@ -65,7 +68,7 @@
                          (td (code (@ (class "nobg"))
                                    ,(scheme-variable-name
                                      (location-file location)
-                                     (number->string (location-line location))))))
+                                     (location-line location)))))
                         (tr
                          (td (@ (style "width: 150pt")) (strong "Installation command"))
                          (td (pre (code (@ (class "bash"))
