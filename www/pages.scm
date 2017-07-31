@@ -36,7 +36,10 @@
           `(li (@ (class "active")) ,(cadr item)))
          ((and (string= "package" (car (string-split (substring request-path 1) #\/)))
                (string= (car item) "/"))
-          `(li (@ (class "active")) (a (@ (href "/")) "← back to search")))
+          `(li (@ (class "active"))
+               (a (@ (href "/")
+                     (onclick "history.go(-1); return false;"))
+                     "← back to search")))
          (else
           `(li (a (@ (href ,(car item))) ,(cadr item))))))
       pages)))
