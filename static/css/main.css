@@ -102,8 +102,8 @@ a:hover { color: #555555; }
 
 #content p { margin: 0pt; padding: 5pt 0pt 5pt 0pt; }
 #content h2 { margin: 0pt; padding-bottom: 5pt; }
-#content h3 { margin: 0pt; padding-bottom: 5pt; }
-#content h4 { margin: 0pt; padding-bottom: 5pt; }
+#content h3 { margin: 0pt; padding-top: 5pt; width: 100%; border-bottom: solid thin #000; }
+#content h4 { margin: 0pt; padding-top: 5pt; border-bottom: solid thin #ccc; }
 #content ul { padding: 0pt 0pt 0pt 10pt; margin: 0pt 0pt 0pt 10pt; }
 #content li { line-height: 1.5em; }
 #content pre { padding: 0pt; margin: 0pt; }
