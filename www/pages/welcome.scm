@@ -65,6 +65,10 @@ function feed_table(packages) {
     $('#search-field').on('keyup', function() {
         dt.search(this.value).draw();
     });
+    $('#search-field').on('keydown', function(event) {
+        if (event.which == 13) return false;
+    });
+
 }
 $(document).ready(function() {
     $('#packages-table').hide();
