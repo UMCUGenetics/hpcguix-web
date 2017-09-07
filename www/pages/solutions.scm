@@ -27,6 +27,25 @@
         "while test-driving the GNU Guix deployment, and provide solutions "
         "to these problems.")
 
+     (h3 "Permission denied upon browsing a shared profile directory")
+
+     (p "When attempting to browse a directory in " (code "/gnu/profiles")
+        ", a permissions error occurs.")
+
+     (p "Loading such a profile, however, does work:")
+     (pre (code (@ (class "bash"))
+                "guixr load-profile /gnu/profiles/per-language/r"))
+
+     (p "To look into the profile directory, use the " (code "/gnu/store")
+        " path instead.  So, in the case of "
+        (code "/gnu/profiles/per-language/r") ", we need to find what "
+        "this points to by using: ")
+
+     (pre (code (@ (class "bash"))
+                "ls -lh /gnu/profiles/per-language/r"))
+
+     (p "The linked " (code "/gnu/store") " path is accessible.")
+
      (h3 "Connection failure")
      (p "The deployment of GNU Guix is a bit special on the HPC. Therefore, "
         "you may end up receiving this error:")
