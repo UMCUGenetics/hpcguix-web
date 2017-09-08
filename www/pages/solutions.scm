@@ -38,13 +38,11 @@
 
      (p "To look into the profile directory, use the " (code "/gnu/store")
         " path instead.  So, in the case of "
-        (code "/gnu/profiles/per-language/r") ", we need to find what "
-        "this points to by using: ")
+        (code "/gnu/profiles/per-language/r") ", we can replace the usual "
+        (code "cd") " command with: ")
 
      (pre (code (@ (class "bash"))
-                "ls -lh /gnu/profiles/per-language/r"))
-
-     (p "The linked " (code "/gnu/store") " path is accessible.")
+                "cd `readlink -f /gnu/profiles/per-language/r`"))
 
      (h3 "Connection failure")
      (p "The deployment of GNU Guix is a bit special on the HPC. Therefore, "
