@@ -78,6 +78,6 @@
            (div (@ (id "content"))
                 ,content-tree)
            (div (@ (id "footer"))
-                (p "Made with λ by the GNU Guix hackers — Copyright © 2017. "
+                (p "Made with λ by the GNU Guix community — Copyright © 2017. "
                    (a (@ (href "https://github.com/UMCUGenetics/hpcguix-web"))
                       "Download the source code of this page") ".")))))))

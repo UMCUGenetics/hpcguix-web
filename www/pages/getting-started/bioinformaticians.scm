@@ -148,7 +148,7 @@ $ guixr package -s ^samtools$"))
        "profile into account.  It only provides a minimal environment to "
        "correctly run the program you specified.")
 
-    (h2 "Profile environment")
+    (h3 "Profile environment")
 
     (p "Similar to " (code "guixr environment") ", which works on a "
        (em "package") " level, there is " (code "guixr load-profile")
@@ -160,7 +160,7 @@ $ guixr package -s ^samtools$"))
     (p "So, basically you call " (code "guixr load-profile")
        " followed by the path to a profile created by GNU Guix.")
 
-    (h2 "Environments in " (code (@ (class "h2-title")) "qsub") " scripts")
+    (h3 "Environments in " (code (@ (class "h3-title")) "qsub") " scripts")
 
     (p "The following code snippet can be used to run parts of your "
        (code "qsub") " script in a protected environment where the "

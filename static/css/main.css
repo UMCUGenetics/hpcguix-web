@@ -153,6 +153,7 @@ div.figure {
 
 .nobg { background-color: transparent; border: none; }
 .h2-title { font-size: large; }
+.h3-title { font-size: larger; }
 
 code {
     text-align: left;
