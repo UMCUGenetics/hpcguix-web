@@ -21,6 +21,8 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (ice-9 rdelim)
+  #:use-module (texinfo)
+  #:use-module (texinfo html)
   #:export (page-package))
 
 (define (scheme-variable-name file line)
@@ -44,7 +46,16 @@
     (call-with-input-file file
       (lambda (port)
         (get-definition port 2 line)))))
-    
+
+(define (package-description-shtml package)
+  "Return an SXML representation of PACKAGE description field with HTML
+vocabulary."
+  ;; 'texi-fragment->stexi' uses 'call-with-input-string', so make sure
+  ;; those string ports are Unicode-capable.
+  (with-fluids ((%default-port-encoding "UTF-8"))
+    (and=> (package-description package)
+           (compose stexi->shtml texi-fragment->stexi))))
+
 (define (page-package request-path)
   (let* ((name (list-ref (string-split request-path #\/) 2))
          (packages (find-packages-by-name name)))
@@ -54,7 +65,7 @@
            (p "The package is gone!")))
         (page-root-template (string-append "Details for " name) request-path
          `((h2 "Package details of " (code (@ (class "h2-title")) ,name))
-           (p ,(package-description (car packages)))
+           (p ,(package-description-shtml (car packages)))
            (p "There " ,(if (> (length packages) 1) "are " "is ") ,(length packages) " version"
               ,(if (> (length packages) 1) "s" "") " available for this package.")
            (hr)
