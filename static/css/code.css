@@ -1,0 +1,33 @@
+/* Syntax highlighting code, by David Thompson, borrowed
+   from:
+     https://git.dthompson.us/blog.git/blob_plain/refs/heads/haunt-migration:/css/dthompson.css
+   David Thompson gives permission for this to be GPLv3+ and CC BY-SA 4.0
+
+   Modified significantly since.
+*/
+
+
+.syntax-special, .syntax-element {
+    color: #856;
+    font-weight: bold;
+}
+
+.syntax-symbol {
+    color: #423;
+}
+
+.syntax-string {
+    color: #484;
+}
+
+.syntax-keyword, .syntax-attribute {
+    color: #921;
+}
+
+.syntax-comment {
+    color: #666;
+}
+
+.syntax-open, .syntax-close {
+    color: #688;
+}
