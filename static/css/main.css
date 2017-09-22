@@ -57,7 +57,7 @@ pre {
     border-width: thin;
     color: #423;
     font-size: 0.9em;
-    padding: 2pt;
+    padding: 4pt;
     text-align: left;
     font-family: fixed-width;
     overflow-x: auto;
@@ -75,7 +75,7 @@ code {
 }
 
 p {
-    max-width: 50rem;
+    max-width: 70rem;
     margin-bottom: 0;
 }
 
