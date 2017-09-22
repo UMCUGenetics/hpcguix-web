@@ -34,6 +34,9 @@
                 "export GUIX_LOCPATH=\"/gnu/profiles/base/lib/locale\"
 export PATH=$PATH:\"/gnu/profiles/base/bin\""))
 
+     (p "To activate GNU Guix on the current shell, copy and paste the "
+        "above commands into your shell.")
+
      (p "This page contains the instructions to get started with GNU "
         "Guix.  We try not to bore you with unneccessary technicalities.  So, "
         "please choose whatever is most applicable to you:")
