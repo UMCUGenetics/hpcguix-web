@@ -25,9 +25,13 @@
                          (and (> (string-length item) 10)
                               (string= (string-take item 10) "guix-build"))))))
     (page-root-template "Build status" request-path
-                      `((h2 "Build status")
-                        (p "The following build jobs are currently running:")
-                        (ul
-                         ,(map (lambda (item)
-                                `(li ,(substring (string-take item (- (string-length item) 6)) 11)))
-                               build-items))))))
+     `((h2 "Build status")
+       ,(if (> (length build-items) 0)
+            `((p "The following build jobs are currently running:")
+              (ul
+               ,(map (lambda (item)
+                       `(li ,(substring
+                              (string-take item (- (string-length item) 6))
+                              11)))
+                     build-items)))
+            `(p "Currently, no build jobs are running."))))))

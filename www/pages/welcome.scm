@@ -30,14 +30,15 @@
                 (placeholder "Search"))))
      (hr)
      (div (@ (id "stand-by")) (p "Please wait for the package data to load..."))
-     (table (@ (id "packages-table")
-               (class "display"))
-            (thead
-             (tr
-              (th "Name")
-              (th "Version")
-              (th "Synopsis")
-              (th (@ (style "width: 250pt")) "Homepage"))))
+     (div (@ (id "packages-table-wrapper"))
+          (table (@ (id "packages-table")
+                    (class "display"))
+                 (thead
+                  (tr
+                   (th "Name")
+                   (th "Version")
+                   (th "Synopsis")
+                   (th (@ (style "width: 250pt")) "Homepage")))))
      (script (@ (type "text/javascript")) "
 function feed_table(packages) {
     var dt = $('#packages-table').DataTable({
