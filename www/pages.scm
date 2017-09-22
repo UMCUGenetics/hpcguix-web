@@ -51,7 +51,7 @@
       (meta (@ (http-equiv "Content-Type") (content "text/html; charset=utf-8")))
       (link (@ (rel "icon")
                (type "image/x-icon")
-               (href "/static/favicon.ico")))
+               (href "/static/images/favicon.png")))
       ,(if (memq 'highlight dependencies)
          `((link (@ (rel "stylesheet") (href "/static/highlight/styles/github.css")))
            (script (@ (src "/static/highlight/highlight.pack.js")) "")
