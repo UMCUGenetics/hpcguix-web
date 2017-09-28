@@ -28,15 +28,15 @@
     font-style: bold;
 }
 
-@media all {html {font-size: 14pt;}}
-@media all and (max-width:950pt){html {font-size: 14pt;}}
-@media all and (max-width:750pt){html {font-size: 14pt;}}
-@media all and (max-width:720pt){html {font-size: 14pt;}}
-@media all and (max-width:690pt){html {font-size: 13.5pt;}}
-@media all and (max-width:660pt){html {font-size: 13pt;}}
-@media all and (max-width:630pt){html {font-size: 12.5pt;}}
-@media all and (max-width:600pt){html {font-size: 12.5pt;}}
-@media all and (max-width:570pt){html {font-size: 12.5pt;}}
+@media all {html {font-size: 20px;}}
+@media all and (max-width:1260px){html {font-size: 20px;}}
+@media all and (max-width:1000px){html {font-size: 20px;}}
+@media all and (max-width:960px){html {font-size: 19px;}}
+@media all and (max-width:920px){html {font-size: 18px;}}
+@media all and (max-width:880px){html {font-size: 17px;}}
+@media all and (max-width:840px){html {font-size: 16px;}}
+@media all and (max-width:800px){html {font-size: 16px;}}
+@media all and (max-width:760px){html {font-size: 16px;}}
 
 /*#ffbf2d*/
 
@@ -45,8 +45,8 @@ body,html {
     width: 100%;
     height: 100%;
     line-height: 1.4em;
-    padding: 0pt;
-    margin: 0pt;
+    padding: 0px;
+    margin: 0px;
     font-family: 'Roboto', sans-serif;
 }
 
@@ -57,7 +57,7 @@ pre {
     border-width: thin;
     color: #423;
     font-size: 0.9em;
-    padding: 4pt;
+    padding: 10px;
     text-align: left;
     font-family: fixed-width;
     overflow-x: auto;
@@ -70,7 +70,7 @@ code {
 }
 
 .width-control {
-    max-width: 950pt;
+    max-width: 1260px;
     width: 90%;
 }
 
@@ -150,8 +150,8 @@ p + p {
 
 
 #collaboration {
-    border-top: solid 3pt #aaaaaa;
-    border-bottom: solid 3pt #aaaaaa;
+    border-top: solid 4px #aaaaaa;
+    border-bottom: solid 4px #aaaaaa;
     background: #ffffff;
     width: 100%;
     bottom: 0px;
@@ -159,7 +159,7 @@ p + p {
 #collaboration-inner { margin: 10px auto 10px auto; }
 #collaboration .members { text-align: center; }
 #collaboration p { padding: 0px 10px 0px 10px; }
-#collaboration .members ul { display: inline-block; padding: 0pt; margin: 0pt; }
+#collaboration .members ul { display: inline-block; padding: 0px; margin: 0px; }
 #collaboration .members li { display: inline-block; padding: 0px 10px; 0px 0px; }
 
 .post {
@@ -178,7 +178,7 @@ hr {
 }
 
 .post h1 { color: #433; }
-.post h2 { padding: 0pt; margin: 0pt; }
+.post h2 { padding: 0px; margin: 0px; }
 
 .post-about {
     color: #4D4D4D;
@@ -186,20 +186,15 @@ hr {
     margin-top: -3em;
 }
 
-#menubar ul { display: inline-block; padding: 0pt; margin: 0pt; }
+#menubar ul { display: inline-block; padding: 0px; margin: 0px; }
 #menubar li {
     display: inline-block;
-    /* background: #dddddd; */
     color: #000000;
-    height: 24pt;
-    line-height: 24pt;
+    height: 32px;
+    line-height: 32px;
     list-style-type: none;
-    margin: 0pt;
-    margin: 0pt 10pt 0pt 0pt;
-    /* padding: 3pt 5pt 3pt 5pt; */
-    /* -webkit-border-radius: 0pt 0pt 4pt 4pt; */
-    /* -moz-border-radius: 0pt 0pt 4pt 4pt; */
-    /* border-radius: 0pt 0pt 4pt 4pt; */
+    margin: 0px;
+    margin: 0px 13px 0px 0px;
     text-transform: uppercase;
     text-decoration: none;
     font-size: small;
@@ -221,35 +216,32 @@ hr {
 #content .search-field {
     border: solid thin #aaaaaa;
     width: 100%;
-    padding: 5pt;
-    -webkit-border-radius: 4pt;
-    -moz-border-radius: 4pt;
-    border-radius: 4pt;
+    padding: 7px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
 
 #content table {
-    border-spacing: 0pt;
-    padding: 0pt;
-    /* -webkit-border-radius: 4pt; */
-    /* -moz-border-radius: 4pt; */
-    /* border-radius: 4pt; */
+    border-spacing: 0px;
+    padding: 0px;
 }
 
-#content table td { padding: 2pt 4pt 2pt 4pt; height: 25pt; }
+#content table td { padding: 3px 5px 3px 5px; height: 25px; }
 
 #packages-table-wrapper {
-    font-size: 0.85rem;
+    font-size: 16px;
 }
 
 #stand-by {
     background: #decd87;
-    -webkit-border-radius: 4pt;
-    -moz-border-radius: 4pt;
-    border-radius: 4pt;
-    font-size: 12pt;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    font-size: 16px;
 }
 
-#stand-by p { padding: 5pt }
+#stand-by p { padding: 7px }
 
 #footer-box {
     width: 100%;
@@ -269,7 +261,7 @@ h1 {
     line-height: 125%;
     margin-top: 1.3rem;
     margin-bottom: .3rem;
-    padding: 0pt;
+    padding: 0px;
     display: block;
     font-size: 1.6rem;
     font-weight: 800;
