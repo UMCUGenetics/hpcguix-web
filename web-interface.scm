@@ -86,8 +86,9 @@
 ;;
 
 (define (request-packages-json-handler)
-  (let ((packages-file (string-append %www-root "/packages.json"))
-        (cache-timeout-file (string-append %www-root "/cache.timeout")))
+  (let* ((packages-file (string-append %www-root "/packages.json"))
+         (cache-timeout-file (string-append %www-root "/cache.timeout"))
+         (cache-timeout-exists? (access? cache-timeout-file F_OK)))
     ;; Write the packages JSON to disk to speed up the page load.
     ;; This caching mechanism prevents new packages from propagating
     ;; into the search.  For this, we can manually create a file
@@ -108,7 +109,8 @@
                              (lambda (a b)
                                (string= (package-name a) b))
                              all-packages %package-blacklist)))))
-        (delete-file cache-timeout-file)))
+        (when cache-timeout-exists?
+          (delete-file cache-timeout-file))))
     (request-file-handler "packages.json")))
 
 (define (request-file-handler path)
