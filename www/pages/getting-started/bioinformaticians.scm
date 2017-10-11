@@ -20,17 +20,19 @@
 
 (define (page-getting-started-bioinformaticians request-path)
   (page-root-template
-   "Getting started with GNU Guix for busy scientists" request-path
+   "Getting started with GNU Guix for bioinformaticians" request-path
    `((h2 "Introduction")
     (p "GNU Guix is a software package manager, available on the HPC, that 
  enables you to install and use software packages in a reproducible way.")
 
-    (p "To use GNU Guix, you need to add the following lines to your "
+    (p "To use GNU Guix, add the following line to "
        (code "$HOME/.bashrc") " file:")
 
     (pre (code (@ (class "bash"))
-               "export GUIX_LOCPATH=\"/gnu/profiles/base/lib/locale\"
-export PATH=$PATH:\"/gnu/profiles/base/bin\""))
+               "export PATH=$PATH:\"/gnu/profiles/base/bin\""))
+
+    (p "To activate GNU Guix on the current shell, copy and paste the "
+       "above commands into your shell.")
 
     (p "")
     (h2 "Package management with GNU Guix")
@@ -43,8 +45,8 @@ export PATH=$PATH:\"/gnu/profiles/base/bin\""))
 
     (h3 "Finding programs")
     (p "We can find packages by using the "
-       (a (@ (href "/")) "web interface's search function") " . Additionally, "
-       "we can search using the command line:")
+       (a (@ (href "/")) "web interface's search function") ", or by using "
+       "the command line:")
 
     (pre (code (@ (class "bash")) "$ guixr package --list-available | less
 $ guixr package --search=samtools
@@ -63,20 +65,29 @@ $ guixr package -s ^samtools$"))
 
     (pre
      (code (@ (class "bash"))
-       "$ guixr package --install=bwa --profile=$PROJECT_ROOT/.guix-profile"))
+       "$ guixr package --install=bwa"))
 
     (p "Or its equivalent using “shorthand” notation:")
 
     (pre
      (code (@ (class "bash"))
-           "$ guixr package -i bwa -p $PROJECT_ROOT/.guix-profile"))
+           "$ guixr package -i bwa"))
 
-    (p "The newly installed programs install into " (code "$HOME/.guix-profile")
-       ". To be able to use them, you need to set the environment variables. To "
-       "obtain an overview of which environment variables to set, use:")
+    (p "By default, the newly installed programs install into "
+       (code "$HOME/.guix-profile") ". To use them, we need to set the "
+       "environment variables. To obtain an overview of which environment "
+       "variables to set, use:")
 
     (pre (code (@ (class "bash"))
            "$ guixr package --search-paths"))
+
+    (p "Installing packages to a different location, like a shared folder can "
+       "be done by adding " (code "-p $PROJECT_ROOT/.guix-profile") " to the "
+       "command:")
+
+    (pre
+     (code (@ (class "bash"))
+           "$ guixr package -i bwa -p /shared/directory/bwa"))
 
     (p "")
     (h3 "Upgrading packages")
@@ -124,18 +135,25 @@ $ guixr package -s ^samtools$"))
     (p "")
     (h2 "Running programs")
 
-    (h3 "Program environment")
-
     (p "Programs read environment variables to find additional modules or "
        "files required to run.  For example, " (code "R") " reads the "
        "environment variable " (code "R_LIBS_SITE") " to find additionally "
-       "installed packages.")
+       "installed packages.  These environment variables make up the "
+       "environment of a program.")
 
-    (p "These environment variables make up the environment of a program. "
-       "Setting the environment for a program, can be done using:")
+    (p "So, to run a program we need to make sure that its environment is set "
+       "correctly.")
 
+    (p "In GNU Guix, there are two ways to manage environments:  At the "
+       "package level, and at the profile level.")
+    
+    (h3 "Managing the environment at the package level")
+
+    (p "In the case of " (code "R") " and " (code "ggplot2") ".")
+
+    (p "Setting the environment for a program, can be done using:")
     (pre (code (@ (class "bash"))
-           "$ guixr environment --ad-hoc r r-ggplot2"))
+               "$ guixr environment --ad-hoc r r-ggplot2"))
 
     (p "To prevent previous environment settings from leaking into the "
        "environment, we need to add the " (code "--pure") " option, which "
@@ -148,16 +166,26 @@ $ guixr package -s ^samtools$"))
        "profile into account.  It only provides a minimal environment to "
        "correctly run the program you specified.")
 
-    (h3 "Profile environment")
+    (h3 "Managing the environment at the profile level")
 
-    (p "Similar to " (code "guixr environment") ", which works on a "
-       (em "package") " level, there is " (code "guixr load-profile")
-       " that works on a " (em "profile") " level.")
+    (p "The " (code "guixr environment") " command takes the most recent "
+       "version of a package.  So, if the main repository has been updated, "
+       "and the specified package can be upgraded, this command will "
+       "build the new version and use that.")
+
+    (p "In most cases, using the same software environment, regardless of "
+       "whether that software is entirely up-to-date is desired (and faster). "
+       "This can be achieved by installing the software packages into a "
+       "profile, and load the environment of the profile, rather than the "
+       "individual packages.")
+
+    (p "Loading the environment of a profile can be done using the "
+       (code "guixr load-profile") " command:")
 
     (pre (code (@ (class "bash"))
            "$ guixr load-profile /gnu/profiles/per-language/r"))
 
-    (p "So, basically you call " (code "guixr load-profile")
+    (p "So, call " (code "guixr load-profile")
        " followed by the path to a profile created by GNU Guix.")
 
     (h3 "Environments in " (code (@ (class "h3-title")) "qsub") " scripts")

@@ -25,12 +25,11 @@
     (p "GNU Guix is a software package manager, available on the HPC, that 
  enables you to install and use software packages in a reproducible way.")
 
-    (p "To use GNU Guix, you need to add the following lines to your "
+    (p "To use GNU Guix, add the following line to "
        (code "$HOME/.bashrc") " file:")
 
     (pre (code (@ (class "bash"))
-               "export GUIX_LOCPATH=\"/gnu/profiles/base/lib/locale\"
-export PATH=$PATH:\"/gnu/profiles/base/bin\""))
+               "export PATH=$PATH:\"/gnu/profiles/base/bin\""))
 
     (p "")
     (h2 "Recommended project setup")
@@ -43,8 +42,8 @@ export PATH=$PATH:\"/gnu/profiles/base/bin\""))
     (h3 "Finding programs")
 
     (p "We can find packages by using the "
-       (a (@ (href "/")) "web interface's search function") " . Additionally, "
-       "we can search using the command line:")
+       (a (@ (href "/")) "web interface's search function") ", or by using "
+       "the command line:")
 
     (pre (code (@ (class "bash")) "$ guixr package --list-available | less
 $ guixr package --search=samtools
@@ -68,7 +67,8 @@ $ guixr package -s ^samtools$"))
      (code (@ (class "bash"))
            "$ guixr package -i bwa -p $PROJECT_ROOT/.guix-profile"))
 
-    (p "To get an overview of the tools in the project’s profile, we can use:")
+    (p "To get an overview of the packages in the project’s profile, we can "
+       "use:")
 
     (pre
      (code (@ (class "bash"))

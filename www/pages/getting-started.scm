@@ -27,12 +27,11 @@
         "cluster that helps you get your software tools to work, and helps "
         "others reproducing your usage of these tools.")
 
-     (p "To use GNU Guix, you need to add the following lines to your "
+     (p "To use GNU Guix, add the following line to "
         (code "$HOME/.bashrc") " file:")
 
      (pre (code (@ (class "bash"))
-                "export GUIX_LOCPATH=\"/gnu/profiles/base/lib/locale\"
-export PATH=$PATH:\"/gnu/profiles/base/bin\""))
+                "export PATH=$PATH:\"/gnu/profiles/base/bin\""))
 
      (p "To activate GNU Guix on the current shell, copy and paste the "
         "above commands into your shell.")
