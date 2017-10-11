@@ -32,8 +32,8 @@
     (let ((absolute-file-name (search-path path file)))
       (unless absolute-file-name
         ;; Shouldn't happen unless somebody fiddled with the 'location' field.
-        (leave (G_ "file '~a' not found in search path ~s~%")
-               file path))
+        (format #t "file '~a' not found in search path ~s~%"
+                file path))
       absolute-file-name))
   
   (define (get-definition port current-line target-line)
