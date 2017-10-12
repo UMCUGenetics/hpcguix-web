@@ -16,8 +16,8 @@
 
 include guile.am
 
-moddir=$(prefix)/share/guile/site/2.2
-godir=$(libdir)/guile/2.2/ccache
+moddir=$(prefix)/share/guile/site/@GUILE_EFFECTIVE_VERSION@
+godir=$(libdir)/guile/@GUILE_EFFECTIVE_VERSION@/ccache
 
 SOURCES =                                               \
   web-interface.scm                                     \
