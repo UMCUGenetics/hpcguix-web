@@ -25,6 +25,9 @@ if test "x$GUILD" = "x"; then
    AC_MSG_ERROR(['guild' binary not found; please check your guile-2.2 installation.])
 fi
 
+AM_MISSING_PROG([UGLIFYJS], [uglify-js])
+AM_CONDITIONAL([HAVE_UGLIFYJS], [test "x$UGLIFYJS" != "x"])
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([env], [chmod +x env])
 AC_CONFIG_FILES([pre-inst-env], [chmod +x pre-inst-env])
