@@ -63,6 +63,8 @@ nobase_dist_assets_DATA =                               \
   static/highlight/styles/androidstudio.css             \
   static/highlight/styles/github.css                    \
   static/datatables.min.css                             \
-  static/datatables.min.js
+  static/datatables.min.js                              \
+  static/jquery-2.2.4.min.js
 
 EXTRA_DIST += env.in
+CLEANFILES += $(wildcard static/*.min.js)

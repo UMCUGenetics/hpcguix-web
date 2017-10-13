@@ -59,6 +59,7 @@
          `())
       ,(if (memq 'datatables dependencies)
            `((link (@ (rel "stylesheet") (type "text/css") (href "/static/datatables.min.css")))
+             (script (@ (type "text/javascript") (src "/static/jquery-2.2.4.min.js")) "")
              (script (@ (type "text/javascript") (src "/static/datatables.min.js")) ""))
            `())
       (link (@ (rel "stylesheet")
