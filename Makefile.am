@@ -31,6 +31,16 @@ SOURCES =                                               \
   www/pages/build-status.scm                            \
   www/pages/welcome.scm
 
+SUFFIXES += .js .min.js
+
+if HAVE_UGLIFYJS
+.js.min.js:
+	$(UGLIFYJS) "$<" > "$@"
+else
+.js.min.js:
+	cp "$<" > "$@"
+endif
+
 assetsdir = $(datadir)/@PACKAGE@
 nobase_dist_assets_DATA =                               \
   static/css/main.css                                   \
