@@ -31,7 +31,8 @@ SOURCES =                                               \
   www/pages/build-status.scm                            \
   www/pages/welcome.scm
 
-WWW_STATIC_RESOURCES =                                  \
+assetsdir = $(datadir)/@PACKAGE@
+nobase_dist_assets_DATA =                               \
   static/css/main.css                                   \
   static/fonts/FiraMono-Regular.ttf                     \
   static/fonts/Roboto-Bold.ttf                          \
@@ -55,4 +56,4 @@ WWW_STATIC_RESOURCES =                                  \
   static/datatables.min.css                             \
   static/datatables.min.js
 
-EXTRA_DIST += env.in $(WWW_STATIC_RESOURCES)
+EXTRA_DIST += env.in
