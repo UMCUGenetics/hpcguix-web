@@ -16,8 +16,8 @@
 
 include guile.am
 
-moddir=$(prefix)/share/guile/site/2.2
-godir=$(libdir)/guile/2.2/ccache
+moddir=$(prefix)/share/guile/site/@GUILE_EFFECTIVE_VERSION@
+godir=$(libdir)/guile/@GUILE_EFFECTIVE_VERSION@/ccache
 
 SOURCES =                                               \
   web-interface.scm                                     \
@@ -31,14 +31,24 @@ SOURCES =                                               \
   www/pages/build-status.scm                            \
   www/pages/welcome.scm
 
-WWW_STATIC_RESOURCES =                                  \
+SUFFIXES += .js .min.js
+
+if HAVE_UGLIFYJS
+.js.min.js:
+	$(UGLIFYJS) "$<" > "$@"
+else
+.js.min.js:
+	cp "$<" > "$@"
+endif
+
+assetsdir = $(datadir)/@PACKAGE@
+nobase_dist_assets_DATA =                               \
   static/css/main.css                                   \
   static/fonts/FiraMono-Regular.ttf                     \
   static/fonts/Roboto-Bold.ttf                          \
   static/fonts/Roboto-LightItalic.ttf                   \
   static/fonts/Roboto-Light.ttf                         \
   static/fonts/OFL.txt                                  \
-  static/graphs/index.html                              \
   static/images/g16.png                                 \
   static/images/grid.png                                \
   static/images/grid.svg                                \
@@ -48,11 +58,13 @@ WWW_STATIC_RESOURCES =                                  \
   static/images/sort_desc.png                           \
   static/images/logo.png                                \
   static/images/cubes.png                               \
-  static/highlight/highlight.pack.js                    \
+  static/highlight/highlight.min.js                     \
   static/highlight/LICENSE                              \
   static/highlight/styles/androidstudio.css             \
   static/highlight/styles/github.css                    \
   static/datatables.min.css                             \
-  static/datatables.min.js
+  static/datatables.min.js                              \
+  static/jquery-2.2.4.min.js
 
-EXTRA_DIST += env.in $(WWW_STATIC_RESOURCES)
+EXTRA_DIST += env.in
+CLEANFILES += $(wildcard static/*.min.js)

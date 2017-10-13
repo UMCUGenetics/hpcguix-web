@@ -14,18 +14,19 @@ dnl You should have received a copy of the GNU General Public License
 dnl along with this program. If not, see <http://www.gnu.org/licenses/>.
 dnl -*- Autoconf -*-
 
-AC_INIT(hpcguix-web, 0.0.1)
+AC_INIT([hpcguix-web], [m4_translit(m4_esyscmd([cat VERSION]),m4_newline)])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([color-tests -Wall -Wno-portability foreign])
 AM_SILENT_RULES([yes])
 
+GUILE_PKG([2.2])
 GUILE_PROGS
-
-if $GUILE_TOOLS | grep -q compile; then
-   true
-else
-   AC_MSG_ERROR([Guile 2.2 required.])
+if test "x$GUILD" = "x"; then
+   AC_MSG_ERROR(['guild' binary not found; please check your guile-2.2 installation.])
 fi
+
+AM_MISSING_PROG([UGLIFYJS], [uglify-js])
+AM_CONDITIONAL([HAVE_UGLIFYJS], [test "x$UGLIFYJS" != "x"])
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([env], [chmod +x env])
