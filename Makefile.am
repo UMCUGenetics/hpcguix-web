@@ -58,7 +58,7 @@ nobase_dist_assets_DATA =                               \
   static/images/sort_desc.png                           \
   static/images/logo.png                                \
   static/images/cubes.png                               \
-  static/highlight/highlight.pack.js                    \
+  static/highlight/highlight.min.js                     \
   static/highlight/LICENSE                              \
   static/highlight/styles/androidstudio.css             \
   static/highlight/styles/github.css                    \

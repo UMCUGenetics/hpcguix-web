@@ -54,7 +54,7 @@
                (href "/static/images/favicon.png")))
       ,(if (memq 'highlight dependencies)
          `((link (@ (rel "stylesheet") (href "/static/highlight/styles/github.css")))
-           (script (@ (src "/static/highlight/highlight.pack.js")) "")
+           (script (@ (src "/static/highlight/highlight.min.js")) "")
            (script "hljs.initHighlightingOnLoad();"))
          `())
       ,(if (memq 'datatables dependencies)
