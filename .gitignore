@@ -10,3 +10,4 @@ config.status
 configure
 env
 pre-inst-env
+*.min.js
