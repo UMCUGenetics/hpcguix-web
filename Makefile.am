@@ -39,7 +39,6 @@ nobase_dist_assets_DATA =                               \
   static/fonts/Roboto-LightItalic.ttf                   \
   static/fonts/Roboto-Light.ttf                         \
   static/fonts/OFL.txt                                  \
-  static/graphs/index.html                              \
   static/images/g16.png                                 \
   static/images/grid.png                                \
   static/images/grid.svg                                \
