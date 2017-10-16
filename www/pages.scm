@@ -86,4 +86,7 @@
               (class "width-control"))
            (p "Made with λ by the GNU Guix community — Copyright © 2017. "
               (a (@ (href "https://github.com/UMCUGenetics/hpcguix-web"))
-                 "Download the source code of this page") "."))))))
+                 "Download the source code of this page") ".")
+           (p (a (@ (href "/javascript")
+             (data-jslicense "1"))
+                 "JavaScript license information")))))))
