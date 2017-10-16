@@ -40,6 +40,7 @@
                    (th "Synopsis")
                    (th (@ (style "width: 250pt")) "Homepage")))))
      (script (@ (type "text/javascript")) "
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3-or-later
 function feed_table(packages) {
     var dt = $('#packages-table').DataTable({
                 sDom: 'lrtip',
@@ -75,5 +76,6 @@ $(document).ready(function() {
     $('#packages-table').hide();
     $.getJSON('/packages.json', feed_table);
 });
+// @license-end
 "))
    #:dependencies '(datatables)))

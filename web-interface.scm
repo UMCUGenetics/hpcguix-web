@@ -35,6 +35,7 @@
   #:use-module (www pages)
   #:use-module (www pages error)
   #:use-module (www pages package)
+  #:use-module (www pages javascript)
   #:use-module (www pages welcome)
 
   #:export (run-web-interface))
