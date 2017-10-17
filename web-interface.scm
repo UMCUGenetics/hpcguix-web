@@ -131,21 +131,21 @@
             [(string= extension "ttf")  '(application/font-sfnt)]
             [(#t '(text/plain))])))
 
-  (let ((full-path (string-append %www-root "/" path)))
-    (if (not (file-exists? full-path))
+  (let* ((full-path (string-append %www-root "/" path))
+         (file-stat (stat full-path #f)))
+    (if (not file-stat)
         (values '((content-type . (text/html)))
                 (with-output-to-string (lambda _ (sxml->xml (page-error-404 path)))))
         ;; Do not handle files larger than %maximum-file-size.
         ;; Please increase the file size if your server can handle it.
-        (let ((file-stat (stat full-path)))
-          (if (> (stat:size file-stat) %www-max-file-size)
-              (values '((content-type . (text/html)))
-                      (with-output-to-string 
-                        (lambda _ (sxml->xml (page-error-filesize path)))))
-              (values `((content-type . ,(response-content-type full-path)))
-                      (with-input-from-file full-path
-                        (lambda _
-                          (get-bytevector-all (current-input-port))))))))))
+        (if (> (stat:size file-stat) %www-max-file-size)
+            (values '((content-type . (text/html)))
+                    (with-output-to-string
+                      (lambda _ (sxml->xml (page-error-filesize path)))))
+            (values `((content-type . ,(response-content-type full-path)))
+                    (with-input-from-file full-path
+                      (lambda _
+                        (get-bytevector-all (current-input-port)))))))))
 
 (define (request-package-handler request-path)
   (values '((content-type . (text/html)))
