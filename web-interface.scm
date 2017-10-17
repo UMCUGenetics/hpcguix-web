@@ -103,13 +103,14 @@
                                     ("version"  ,(package-version package))
                                     ("synopsis" ,(package-synopsis package))
                                     ("homepage" ,(package-home-page package)))))))
-        (with-output-to-file packages-file
-          (lambda _
+        (with-atomic-file-output packages-file
+          (lambda (port)
             (scm->json (map package->json
                             (lset-difference
                              (lambda (a b)
                                (string= (package-name a) b))
-                             all-packages %package-blacklist)))))
+                             all-packages %package-blacklist))
+                       port)))
         (when cache-timeout-exists?
           (delete-file cache-timeout-file))))
     (request-file-handler "packages.json")))
