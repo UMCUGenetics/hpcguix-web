@@ -106,10 +106,10 @@
         (with-atomic-file-output packages-file
           (lambda (port)
             (scm->json (map package->json
-                            (lset-difference
-                             (lambda (a b)
-                               (string= (package-name a) b))
-                             all-packages %package-blacklist))
+                            (remove (lambda (package)
+                                      (member (package-name package)
+                                              %package-blacklist))
+                                    all-packages))
                        port)))
         (when cache-timeout-exists?
           (delete-file cache-timeout-file))))
