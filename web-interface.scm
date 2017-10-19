@@ -1,4 +1,5 @@
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
+;;; Copyright © 2017  Ricardo Wurmus <rekado@elephly.net>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -102,7 +103,12 @@
                                     ("name"     ,(package-name package))
                                     ("version"  ,(package-version package))
                                     ("synopsis" ,(package-synopsis package))
-                                    ("homepage" ,(package-home-page package)))))))
+                                    ("homepage" ,(package-home-page package))
+                                    ("module"   ,(string-drop-right
+                                                  (last (string-split (location-file
+                                                                       (package-location package))
+                                                                      #\/))
+                                                  4)))))))
         (with-atomic-file-output packages-file
           (lambda (port)
             (scm->json (map package->json
