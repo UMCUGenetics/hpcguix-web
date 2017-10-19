@@ -23,6 +23,10 @@
    "JavaScript license information" request-path
    `((h2 "JavaScript license information")
      (table (@ (id "jslicense-labels1"))
+            (tr (td (a (@ (href "/static/hpcguix-web.min.js"))
+                       "hpcguix-web.min.js"))
+                (td (a (@ (href "https://raw.githubusercontent.com/UMCUGenetics/hpcguix-web/master/COPYING"))
+                       "AGPL-3.0")))
             (tr (td (a (@ (href "/static/datatables.min.js"))
                        "datatables.min.js"))
                 (td (a (@ (href "http://datatables.net/license"))
