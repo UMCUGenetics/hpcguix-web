@@ -8,7 +8,7 @@
 ;;; Run the following command to enter a development environment for
 ;;; HPC Guix web:
 ;;;
-;;;  $ guix environment -l guix.scm
+;;;  $ guix environment -l environment.scm
 
 (use-modules ((guix licenses) #:prefix license:)
              (guix packages)
