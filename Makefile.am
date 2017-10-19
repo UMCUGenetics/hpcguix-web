@@ -59,6 +59,7 @@ nobase_dist_assets_DATA =                               \
   static/images/sort_desc.png                           \
   static/images/logo.png                                \
   static/images/cubes.png                               \
+  static/hpcguix-web.min.js                             \
   static/highlight/highlight.min.js                     \
   static/highlight/LICENSE                              \
   static/highlight/styles/androidstudio.css             \
