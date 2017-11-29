@@ -18,10 +18,19 @@
 (define-module (www util)
   #:use-module (srfi srfi-1)
   #:export (file-extension
-            string-replace-occurrence))
+            string-replace-occurrence
+            module-path))
 
 (define (file-extension file-name)
   (last (string-split file-name #\.)))
 
 (define (string-replace-occurrence str occurrence alternative)
   (string-map (lambda (x) (if (eq? x occurrence) alternative x)) str))
+
+(define (module-path prefix elements)
+  "Returns the module path so it can be loaded."
+  (if (> (length elements) 1)
+      (module-path
+       (append prefix (list (string->symbol (car elements))))
+       (cdr elements))
+      (append prefix (list (string->symbol (car elements))))))

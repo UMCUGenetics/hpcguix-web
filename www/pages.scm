@@ -16,9 +16,9 @@
 
 (define-module (www pages)
   #:use-module (srfi srfi-1)
+  #:use-module (site-specific config)
+  #:use-module (www util)
   #:export (page-root-template))
-
-(define page-title-prefix "hpcguix | ")
 
 (define pages
   '(("/" "Search")
@@ -47,7 +47,10 @@
 (define* (page-root-template title request-path content-tree #:key (dependencies '(test)))
   `((html (@ (lang "en"))
      (head
-      (title ,(string-append page-title-prefix title))
+      (title ,(string-append (if (defined? '%site-title-prefix)
+                                 %site-title-prefix
+                                 "hpcguix | ")
+                             title))
       (meta (@ (http-equiv "Content-Type") (content "text/html; charset=utf-8")))
       (link (@ (rel "icon")
                (type "image/x-icon")

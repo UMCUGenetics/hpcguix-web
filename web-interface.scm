@@ -25,6 +25,7 @@
   #:use-module (ice-9 match)
   #:use-module (rnrs bytevectors)
   #:use-module (rnrs io ports)
+  #:use-module (site-specific config)
   #:use-module (srfi srfi-1)
   #:use-module (sxml simple)
   #:use-module (guix utils)
@@ -41,41 +42,6 @@
   #:use-module (www pages welcome)
 
   #:export (run-web-interface))
-
-(define %package-blacklist
-  '("cataclysm-dda"                "freedoom"          "gnubg"
-    "gnubik"                       "gnushogi"          "prboom-plus"
-    "retux"                        "xshogi"            "abbaye"
-    "angband"                      "pingus"            "talkfilters"
-    "cmatrix"                      "chess"             "freedink-engine"
-    "freedink-data"                "freedink"          "xboard"
-    "xboing"                       "gtypist"           "irrlicht"
-    "mars"                         "minetest-data"     "minetest"
-    "glkterm"                      "glulxe"            "fizmo"
-    "retroarch"                    "gnugo"             "extremetuxracer"
-    "supertuxkart"                 "gnujump"           "wesnoth"
-    "dosbox"                       "gamine"            "raincat"
-    "manaplus"                     "mupen64plus-core"
-    "mupen64plus-audio-sdl"        "mupen64plus-input-sdl"
-    "mupen64plus-rsp-hle"          "mupen64plus-rsp-z64"
-    "mupen64plus-video-arachnoid"  "mupen64plus-video-glide64"
-    "mupen64plus-video-glide64mk2" "mupen64plus-video-rice"
-    "mupen64plus-video-z64"        "mupen64plus-ui-console"
-    "nestopia-ue"                  "emulation-station" "openttd-engine"
-    "openttd-opengfx"              "openttd"           "pinball"
-    "pioneers"                     "desmume"           "einstein"
-    "powwow"                       "red-eclipse"       "higan"
-    "grue-hunter"                  "lierolibre"        "warzone2100"
-    "starfighter"                  "chromium-bsu"      "tuxpaint"
-    "tuxpaint-stamps"              "tuxpaint-config"   "supertux"
-    "tintin++"                     "laby"              "bambam"
-    "mrrescue"                     "hyperrogue"        "kobodeluxe"
-    "freeciv"                      "no-more-secrets"   "megaglest-data"
-    "megaglest"                    "freegish"          "cdogs-sdl"
-    "kiki"                         "teeworlds"         "enigma"
-    "fillets-ng"                   "crawl"             "crawl-tiles"
-    "lugaru"                       "0ad-data"          "0ad"
-    "open-adventure"               "aisleriot"))
 
 ;; ----------------------------------------------------------------------------
 ;; HANDLERS
@@ -129,10 +95,12 @@
         (with-atomic-file-output packages-file
           (lambda (port)
             (scm->json (map package->json
-                            (remove (lambda (package)
-                                      (member (package-name package)
-                                              %package-blacklist))
-                                    all-packages))
+                            (if (defined? '%package-blacklist)
+                                (remove (lambda (package)
+                                          (member (package-name package)
+                                                  %package-blacklist))
+                                        all-packages)
+                                all-packages))
                        port)))
         (when cache-timeout-exists?
           (delete-file cache-timeout-file))))
@@ -179,13 +147,6 @@
 
 (define (request-scheme-page-handler request request-body request-path)
 
-  (define (module-path prefix elements)
-    "Returns the module path so it can be loaded."
-    (if (> (length elements) 1)
-        (module-path
-         (append prefix (list (string->symbol (car elements))))
-         (cdr elements))
-        (append prefix (list (string->symbol (car elements))))))
   (values '((content-type . (text/html)))
           (call-with-output-string
             (lambda (port)
