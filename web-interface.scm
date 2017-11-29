@@ -20,6 +20,7 @@
   #:use-module (web request)
   #:use-module (web response)
   #:use-module (web uri)
+  #:use-module (commonmark)
   #:use-module (ice-9 rdelim)
   #:use-module (ice-9 match)
   #:use-module (rnrs bytevectors)
@@ -86,6 +87,22 @@
 ;;
 ;; In this section, the different handlers are implemented.
 ;;
+
+(define (request-markdown-handler request-path)
+  (let ((file (string-append %www-markdown-root "/" request-path ".md")))
+    (values
+     '((content-type . (text/html)))
+     (call-with-output-string
+       (lambda (port)
+         (set-port-encoding! port "utf8")
+         (format port "<!DOCTYPE html>~%")
+         (sxml->xml (page-root-template
+                     (string-capitalize
+                      (string-replace-occurrence
+                       (basename request-path) #\- #\ ))
+                     request-path
+                     (call-with-input-file file
+                       (lambda (port) (commonmark->sxml port)))) port))))))
 
 (define (request-packages-json-handler)
   (let* ((packages-file (string-append %www-root "/packages.json"))
@@ -226,6 +243,10 @@
      ((and (> (string-length request-path) 8)
            (string= (string-take request-path 9) "/package/"))
       (request-package-handler request-path))
+     ((and (not (string= "/" request-path))
+           (access? (string-append %www-markdown-root "/"
+                                   request-path ".md") F_OK))
+      (request-markdown-handler request-path))
      (else
       (request-scheme-page-handler request request-body request-path)))))
 

@@ -43,7 +43,8 @@
      ("pkg-config" ,pkg-config)))
   (inputs
    `(("guix" ,guix)
-     ("guile" ,guile-2.2)))
+     ("guile" ,guile-2.2)
+     ("guile-commonmark" ,guile-commonmark)))
   (home-page "https://github.com/UMCUGenetics/hpcguix-web")
   (synopsis "Web interface for cluster deployments of Guix")
   (description "This package provides a web interface to the list of

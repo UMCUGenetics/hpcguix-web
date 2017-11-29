@@ -17,7 +17,11 @@
 
 (define-module (www util)
   #:use-module (srfi srfi-1)
-  #:export (file-extension))
+  #:export (file-extension
+            string-replace-occurrence))
 
 (define (file-extension file-name)
   (last (string-split file-name #\.)))
+
+(define (string-replace-occurrence str occurrence alternative)
+  (string-map (lambda (x) (if (eq? x occurrence) alternative x)) str))
