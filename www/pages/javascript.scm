@@ -35,7 +35,7 @@
                        "highlight.min.js"))
                 (td (a (@ (href "https://raw.githubusercontent.com/isagalaev/highlight.js/master/LICENSE"))
                        "BSD-3")))
-            (tr (td (a (@ (href "./static/jquery-2.2.4.min.js"))
+            (tr (td (a (@ (href "/static/jquery-2.2.4.min.js"))
                        "jquery-2.2.4.js"))
                 (td (a (@ (href "https://raw.githubusercontent.com/jquery/jquery/master/LICENSE.txt"))
                        "Expat")))))))
