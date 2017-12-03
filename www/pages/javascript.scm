@@ -18,9 +18,9 @@
   #:use-module (www pages)
   #:export (page-javascript))
 
-(define (page-javascript request-path)
+(define (page-javascript request-path site-config)
   (page-root-template
-   "JavaScript license information" request-path
+   "JavaScript license information" request-path site-config
    `((h2 "JavaScript license information")
      (table (@ (id "jslicense-labels1"))
             (tr (td (a (@ (href "/static/hpcguix-web.min.js"))

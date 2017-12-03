@@ -15,13 +15,13 @@
 ;;; <http://www.gnu.org/licenses/>.
 
 (define-module (www pages package)
+  #:use-module (hpcweb-configuration)
   #:use-module (www pages)
   #:use-module (www config)
   #:use-module (gnu packages)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (ice-9 rdelim)
-  #:use-module (site-specific config)
   #:use-module (texinfo)
   #:use-module (texinfo html)
   #:export (page-package))
@@ -57,51 +57,56 @@ vocabulary."
     (and=> (package-description package)
            (compose stexi->shtml texi-fragment->stexi))))
 
-(define (page-package request-path)
+(define (page-package request-path site-config)
   (let* ((name (list-ref (string-split request-path #\/) 2))
          (packages (find-packages-by-name name)))
     (if (eqv? packages '())
-        (page-root-template "Oops!" request-path
+        (page-root-template "Oops!" request-path site-config
          `((h2 "Uh-oh...")
            (p "The package is gone!")))
         (page-root-template (string-append "Details for " name) request-path
+         site-config
          `((h2 "Package details of " (code (@ (class "h2-title")) ,name))
            (p ,(package-description-shtml (car packages)))
            (p "There " ,(if (> (length packages) 1) "are " "is ") ,(length packages) " version"
               ,(if (> (length packages) 1) "s" "") " available for this package.")
            (hr)
-           ,(map (lambda (instance)
-                   (let ((location (package-location instance)))
-                     `((table (@ (style "width: 100%"))
-                        (tr
-                         (td (strong "Version"))
-                         (td ,(package-version instance)))
-                        (tr
-                         (td (strong "Defined at"))
-                         (td (code (@ (class "nobg"))
-                                   ,(string-append (location-file location) ":"
-                                                   (number->string
-                                                    (location-line location))))))
-                        (tr
-                         (td (strong "Symbol name"))
-                         (td (code (@ (class "nobg"))
-                                   ,(scheme-variable-name
-                                     (location-file location)
-                                     (location-line location)))))
-                        (tr
-                         (td (@ (style "width: 150pt")) (strong "Installation command"))
-                         (td (pre (code (@ (class "bash"))
-                                        (string-append ,(if (defined? '%guix-command)
-                                                            %guix-command
-                                                            "guix")
-                                                       " package -i "
-                                                       ,name ,(if (> (length packages) 1)
-                                                                  (string-append
-                                                                   "@" (package-version instance)) ""))))))
-                        (tr
-                         (td (strong "Homepage"))
-                         (td (a (@ (href ,(package-home-page instance))) ,(package-home-page instance)))))
-                       (hr))))
-                 packages)
-           ,(if (defined? '%package-page-extension) %package-page-extension ""))
+           ,(map
+             (lambda (instance)
+               (let ((location (package-location instance)))
+                 `((table (@ (style "width: 100%"))
+                   (tr
+                    (td (strong "Version"))
+                    (td ,(package-version instance)))
+                   (tr
+                    (td (strong "Defined at"))
+                    (td (code (@ (class "nobg"))
+                              ,(string-append (location-file location) ":"
+                                              (number->string
+                                               (location-line location))))))
+                   (tr
+                    (td (strong "Symbol name"))
+                    (td (code (@ (class "nobg"))
+                              ,(scheme-variable-name
+                                (location-file location)
+                                (location-line location)))))
+                   (tr
+                    (td (@ (style "width: 150pt")) (strong "Installation command"))
+                    (td (pre (code (@ (class "bash"))
+                               (string-append
+                                ,(if (not (null? site-config))
+                                     (hpcweb-configuration-guix-command site-config)
+                                     "guix")
+                                " package -i "
+                                ,name ,(if (> (length packages) 1)
+                                           (string-append
+                                            "@" (package-version instance)) ""))))))
+                   (tr
+                    (td (strong "Homepage"))
+                    (td (a (@ (href ,(package-home-page instance))) ,(package-home-page instance)))))
+                   (hr))))
+             packages)
+           ,(if (not (null? site-config))
+                (hpcweb-configuration-package-page-extension site-config)
+                ""))
          #:dependencies '(highlight)))))

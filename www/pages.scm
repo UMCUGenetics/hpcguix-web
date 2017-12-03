@@ -15,19 +15,12 @@
 ;;; <http://www.gnu.org/licenses/>.
 
 (define-module (www pages)
+  #:use-module (hpcweb-configuration)
   #:use-module (srfi srfi-1)
-  #:use-module (site-specific config)
   #:use-module (www util)
   #:export (page-root-template))
 
-(define pages
-  '(("/" "Search")
-    ("/getting-started" "Get started")
-    ("/solutions" "Common problems and solutions")
-    ("/build-status" "Build status")
-    ("/help" "Help")))
-
-(define (page-partial-main-menu request-path)
+(define (page-partial-main-menu request-path site-config)
   `(ul
     ,(map
       (lambda (item)
@@ -42,13 +35,16 @@
                   "← back to search")))
          (else
           `(li (a (@ (href ,(car item))) ,(cadr item))))))
-      pages)))
+      (cons '("/" "Search") (if (not (null? site-config))
+                                (hpcweb-configuration-menu site-config)
+                                '())))))
 
-(define* (page-root-template title request-path content-tree #:key (dependencies '(test)))
+(define* (page-root-template title request-path site-config content-tree
+                             #:key (dependencies '()))
   `((html (@ (lang "en"))
      (head
-      (title ,(string-append (if (defined? '%site-title-prefix)
-                                 %site-title-prefix
+      (title ,(string-append (if (not (null? site-config))
+                                 (hpcweb-configuration-title-prefix site-config)
                                  "hpcguix | ")
                              title))
       (meta (@ (http-equiv "Content-Type") (content "text/html; charset=utf-8")))
@@ -81,7 +77,7 @@
                      "Reproducible software deployment for high-performance computing.")))
       (div (@ (id "menubar")
               (class "width-control"))
-           ,(page-partial-main-menu request-path))
+           ,(page-partial-main-menu request-path site-config))
       (div (@ (id "content")
               (class "width-control"))
            ,content-tree)

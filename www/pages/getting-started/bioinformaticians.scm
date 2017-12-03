@@ -18,9 +18,10 @@
   #:use-module (www pages)
   #:export (page-getting-started-bioinformaticians))
 
-(define (page-getting-started-bioinformaticians request-path)
+(define (page-getting-started-bioinformaticians request-path site-config)
   (page-root-template
    "Getting started with GNU Guix for bioinformaticians" request-path
+   site-config
    `((h2 "Introduction")
     (p "GNU Guix is a software package manager, available on the HPC, that 
  enables you to install and use software packages in a reproducible way.")

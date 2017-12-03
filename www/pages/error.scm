@@ -21,12 +21,12 @@
             page-error-filesize
             page-error))
 
-(define (page-error-404 request-path)
-  (page-root-template "Oops!" request-path
+(define (page-error-404 request-path site-config)
+  (page-root-template "Oops!" request-path site-config
    `(p "The page you tried to reach cannot be found.")))
 
-(define (page-error-filesize request-path)
-  (page-root-template "Oops!" request-path
+(define (page-error-filesize request-path site-config)
+  (page-root-template "Oops!" request-path site-config
    `(p ,(format #f "The maximum file size has been set to ~a megabytes."
                 (/ %www-max-file-size 1000000)))))
 

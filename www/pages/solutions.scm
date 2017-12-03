@@ -18,9 +18,9 @@
   #:use-module (www pages)
   #:export (page-solutions))
 
-(define (page-solutions request-path)
+(define (page-solutions request-path site-config)
   (page-root-template
-   "Common problems and solutions" request-path
+   "Common problems and solutions" request-path site-config
    `((h2 "Common problems and solutions")
 
      (p "In the following section, we address problems we have encountered "

@@ -19,12 +19,12 @@
   #:use-module (ice-9 ftw)
   #:export (page-build-status))
 
-(define (page-build-status request-path)
+(define (page-build-status request-path site-config)
   (let ((build-items (scandir "/tmp"
                        (lambda (item)
                          (and (> (string-length item) 10)
                               (string= (string-take item 10) "guix-build"))))))
-    (page-root-template "Build status" request-path
+    (page-root-template "Build status" request-path site-config
      `((h2 "Build status")
        ,(if (> (length build-items) 0)
             `((p "The following build jobs are currently running:")

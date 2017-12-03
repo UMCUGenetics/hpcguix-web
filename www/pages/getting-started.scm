@@ -18,9 +18,9 @@
   #:use-module (www pages)
   #:export (page-getting-started))
 
-(define (page-getting-started request-path)
+(define (page-getting-started request-path site-config)
   (page-root-template
-   "Getting started with GNU Guix" request-path
+   "Getting started with GNU Guix" request-path site-config
    `((h2 "Getting started with GNU Guix on the cluster")
 
      (p "GNU Guix is a software package manager available on our computing "

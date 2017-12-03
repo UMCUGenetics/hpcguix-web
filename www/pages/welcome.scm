@@ -19,8 +19,8 @@
   #:use-module (www pages)
   #:export (page-welcome))
 
-(define (page-welcome request-path)
-  (page-root-template "Search" request-path
+(define (page-welcome request-path site-config)
+  (page-root-template "Search" request-path site-config
    `((h2 "Find software packages")
 
      (form

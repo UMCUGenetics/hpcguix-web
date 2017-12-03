@@ -18,9 +18,9 @@
   #:use-module (www pages)
   #:export (page-help))
 
-(define (page-help request-path)
-  (page-root-template "Help" request-path
-                      `((h2 "Help")
-                        (p "For questions and feedback, please contact "
-                           (a (@ (href "mailto:R.R.E.Janssen-10@umcutrecht.nl"))
-                              "Roel Janssen") "."))))
+(define (page-help request-path site-config)
+  (page-root-template "Help" request-path site-config
+   `((h2 "Help")
+     (p "For questions and feedback, please contact "
+        (a (@ (href "mailto:R.R.E.Janssen-10@umcutrecht.nl"))
+           "Roel Janssen") "."))))
