@@ -1,3 +1,6 @@
+#!@GUILE@ --no-auto-compile
+-*- scheme -*-
+!#
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2017  Ricardo Wurmus <rekado@elephly.net>
 ;;;
@@ -15,6 +18,7 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 
+(add-to-load-path "@abs_top_srcdir@")
 (use-modules (commonmark)
              (gnu packages)
              (guix licenses)

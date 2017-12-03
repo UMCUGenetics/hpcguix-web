@@ -20,7 +20,6 @@ moddir=$(prefix)/share/guile/site/@GUILE_EFFECTIVE_VERSION@
 godir=$(libdir)/guile/@GUILE_EFFECTIVE_VERSION@/ccache
 
 SOURCES =                                               \
-  web-interface.scm                                     \
   www/config.scm                                        \
   www/util.scm                                          \
   www/pages.scm                                         \
@@ -68,5 +67,5 @@ nobase_dist_assets_DATA =                               \
   static/datatables.min.js                              \
   static/jquery-2.2.4.min.js
 
-EXTRA_DIST += env.in
+EXTRA_DIST += run.in
 CLEANFILES += $(wildcard static/*.min.js)
