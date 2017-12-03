@@ -161,7 +161,6 @@
                                            '())) port)))))
 
 (define (request-scheme-page-handler request request-body request-path)
-  (format #t "Scheme handler for ~a~%" request-path)
   (values '((content-type . (text/html)))
           (call-with-output-string
             (lambda (port)
@@ -182,10 +181,6 @@
                     (if module
                         (let ((display-function
                                (module-ref module page-symbol)))
-                          (format #t "display function has been set to ~a.~%" display-function)
-                          (format #t "Response: ~a~%" (display-function request-path
-                                                                        (if (defined? 'site-config)
-                                                                            site-config '())))
                           (if (eq? (request-method request) 'POST)
                               (sxml->xml (display-function request-path
                                           (if (defined? 'site-config)
@@ -216,7 +211,6 @@
 ;; ----------------------------------------------------------------------------
 (define (request-handler request request-body)
   (let ((request-path (uri-path (request-uri request))))
-    (format #t "~a ~a~%" (request-method request) request-path)
     (cond
      ((string= request-path "/packages.json")
       (request-packages-json-handler))
@@ -241,6 +235,8 @@
 ;; This code runs the web server.
 
 (define (run-web-interface)
+  (format #t "The web page is available at  http://127.0.0.1:~a/.~%"
+          %www-listen-port)
   (run-server request-handler 'http
               `(#:port ,%www-listen-port
                 #:addr ,INADDR_ANY)))
