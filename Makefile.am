@@ -26,9 +26,6 @@ SOURCES =                                               \
   www/pages/javascript.scm                              \
   www/pages/package.scm                                 \
   www/pages/error.scm                                   \
-  www/pages/solutions.scm                               \
-  www/pages/getting-started.scm                         \
-  www/pages/build-status.scm                            \
   www/pages/welcome.scm
 
 SUFFIXES += .js .min.js
