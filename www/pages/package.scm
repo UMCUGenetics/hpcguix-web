@@ -1,4 +1,5 @@
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
+;;; Copyright © 2017 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -19,34 +20,33 @@
   #:use-module (www pages)
   #:use-module (www config)
   #:use-module (gnu packages)
+  #:use-module (guix discovery)
+  #:use-module (guix memoization)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (ice-9 control)
+  #:use-module (ice-9 match)
   #:use-module (ice-9 rdelim)
   #:use-module (texinfo)
   #:use-module (texinfo html)
   #:export (page-package))
 
-(define (scheme-variable-name file line)
-
-  (define (search-path* path file)
-    "Like 'search-path' but exit if FILE is not found."
-    (let ((absolute-file-name (search-path path file)))
-      (unless absolute-file-name
-        ;; Shouldn't happen unless somebody fiddled with the 'location' field.
-        (format #t "file '~a' not found in search path ~s~%"
-                file path))
-      absolute-file-name))
-  
-  (define (get-definition port current-line target-line)
-    (let ((line (read-line port)))
-      (if (< current-line target-line)
-          (get-definition port (1+ current-line) target-line)
-          (cadr (string-split line #\ )))))
-
-  (let ((file (search-path* %load-path file)))
-    (call-with-input-file file
-      (lambda (port)
-        (get-definition port 2 line)))))
+(define package->variable-name
+  (mlambdaq (package)
+    "Return the name of the variable that defines PACKAGE, a package object,
+or #f if we failed to find it."
+    (let/ec return
+      (let loop ((modules (all-modules (%package-module-path))))
+        (match modules
+          (() #f)
+          ((module . rest)
+           (module-map (lambda (symbol variable)
+                         (let ((value (false-if-exception
+                                       (variable-ref variable))))
+                           (and (eq? value package)
+                                (return symbol))))
+                       module)
+           (loop rest)))))))
 
 (define (package-description-shtml package)
   "Return an SXML representation of PACKAGE description field with HTML
@@ -87,9 +87,7 @@ vocabulary."
                    (tr
                     (td (strong "Symbol name"))
                     (td (code (@ (class "nobg"))
-                              ,(scheme-variable-name
-                                (location-file location)
-                                (location-line location)))))
+                              ,(package->variable-name instance))))
                    (tr
                     (td (@ (style "width: 150pt")) (strong "Installation command"))
                     (td (pre (code (@ (class "bash"))
