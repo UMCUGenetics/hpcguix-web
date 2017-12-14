@@ -87,7 +87,7 @@ vocabulary."
                    (tr
                     (td (strong "Symbol name"))
                     (td (code (@ (class "nobg"))
-                              ,(package->variable-name instance))))
+                              ,(symbol->string (package->variable-name instance)))))
                    (tr
                     (td (@ (style "width: 150pt")) (strong "Installation command"))
                     (td (pre (code (@ (class "bash"))
