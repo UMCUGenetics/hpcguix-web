@@ -29,6 +29,7 @@ AM_MISSING_PROG([UGLIFYJS], [uglify-js])
 AM_CONDITIONAL([HAVE_UGLIFYJS], [test "x$UGLIFYJS" != "x"])
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([env], [chmod +x env])
 AC_CONFIG_FILES([run], [chmod +x run])
 
 AC_OUTPUT

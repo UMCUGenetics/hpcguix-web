@@ -105,6 +105,7 @@ vocabulary."
                    (hr))))
              packages)
            ,(if (not (null? site-config))
-                (hpcweb-configuration-package-page-extension site-config)
+                (let ((func (hpcweb-configuration-package-page-extension-proc site-config)))
+                  (func request-path))
                 ""))
          #:dependencies '(highlight)))))
