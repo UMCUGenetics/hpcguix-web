@@ -17,7 +17,7 @@
   (guix-command                 hpcweb-configuration-guix-command
                                 (default "guix"))
   (package-filter-proc          hpcweb-configuration-package-filter-proc
-                                (default '()))
+                                (default (const #t)))
   (package-page-extension-proc  hpcweb-configuration-package-page-extension-proc
                                 (default '()))
   (menu                         hpcweb-configuration-menu
