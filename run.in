@@ -19,7 +19,7 @@
 ;;; License along with this program.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 
-(add-to-load-path (canonicalize-path (car (command-line))))
+(add-to-load-path (dirname (canonicalize-path (car (command-line)))))
 (use-modules (commonmark)
              (hpcweb-configuration)
              (gnu packages)
