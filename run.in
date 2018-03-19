@@ -218,22 +218,28 @@
 ;;
 ;; ----------------------------------------------------------------------------
 (define (request-handler request request-body)
-  (let ((request-path (uri-path (request-uri request))))
-    (cond
-     ((string= request-path "/packages.json")
-      (request-packages-json-handler))
-     ((and (> (string-length request-path) 7)
-           (string= (string-take request-path 8) "/static/"))
-      (request-file-handler request-path))
-     ((and (> (string-length request-path) 8)
-           (string= (string-take request-path 9) "/package/"))
-      (request-package-handler request-path))
-     ((and (not (string= "/" request-path))
-           (access? (string-append %www-markdown-root "/"
-                                   request-path ".md") F_OK))
-      (request-markdown-handler request-path))
-     (else
-      (request-scheme-page-handler request request-body request-path)))))
+  (match (request-method request)
+    ('GET
+     (let ((request-path (uri-path (request-uri request))))
+       (cond
+        ((string= request-path "/packages.json")
+         (request-packages-json-handler))
+        ((and (> (string-length request-path) 7)
+              (string= (string-take request-path 8) "/static/"))
+         (request-file-handler request-path))
+        ((and (> (string-length request-path) 8)
+              (string= (string-take request-path 9) "/package/"))
+         (request-package-handler request-path))
+        ((and (not (string= "/" request-path))
+              (access? (string-append %www-markdown-root "/"
+                                      request-path ".md") F_OK))
+         (request-markdown-handler request-path))
+        (else
+         (request-scheme-page-handler request request-body request-path)))))
+    (_
+     ;; Nothing but GET is supported.
+     (page-error-404 request-path
+                     (if (defined? 'site-config) site-config '())))))
 
 
 ;; ----------------------------------------------------------------------------
