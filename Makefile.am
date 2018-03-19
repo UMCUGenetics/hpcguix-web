@@ -66,3 +66,11 @@ nobase_dist_assets_DATA =                               \
 
 EXTRA_DIST += run.in
 CLEANFILES += $(wildcard static/*.min.js)
+
+# Flags for 'guild compile'.
+GUILD_COMPILE_FLAGS = -Wformat -Wunbound-variable -Warity-mismatch
+
+# Build 'run' by default.  Compile it so we get warnings.
+all-local: run
+	$(AM_V_GEN)$(GUILD) compile $(GUILD_COMPILE_FLAGS)	\
+	  -L "$(top_srcdir)"  run
