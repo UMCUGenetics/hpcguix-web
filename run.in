@@ -150,7 +150,10 @@
                         (get-bytevector-all (current-input-port)))))))))
 
 (define (request-package-handler request-path)
-  (values '((content-type . (text/html)))
+  ;; Note: Use Content-Security-Policy to protect against "clickjacking"
+  ;; attacks: <https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet>.
+  (values '((content-type . (text/html))
+            (content-security-policy . "frame-ancestors 'none';"))
           (call-with-output-string
             (lambda (port)
               (sxml->xml (page-package request-path
@@ -159,7 +162,8 @@
                                            '())) port)))))
 
 (define (request-scheme-page-handler request request-body request-path)
-  (values '((content-type . (text/html)))
+  (values '((content-type . (text/html))
+            (content-security-policy . "frame-ancestors 'none';"))
           (call-with-output-string
             (lambda (port)
               (set-port-encoding! port "utf8")
