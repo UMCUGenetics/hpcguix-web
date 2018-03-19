@@ -3,6 +3,7 @@
 !#
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2017  Ricardo Wurmus <rekado@elephly.net>
+;;; Copyright © 2018  Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -126,6 +127,12 @@
             [(string= extension "ttf")  '(application/font-sfnt)]
             [(#t '(text/plain))])))
 
+  (define (get-bytevector-all* port)
+    ;; Like 'get-bytevector-all', but always returns a bytevector.
+    (match (get-bytevector-all port)
+      ((? eof-object?)    #vu8())
+      ((? bytevector? bv) bv)))
+
   (let* ((full-path (string-append %www-root "/" path))
          (file-stat (stat full-path #f)))
     (if (not file-stat)
@@ -145,9 +152,8 @@
                                                      site-config
                                                      '()))))))
             (values `((content-type . ,(response-content-type full-path)))
-                    (with-input-from-file full-path
-                      (lambda _
-                        (get-bytevector-all (current-input-port)))))))))
+                    (call-with-input-file full-path
+                      get-bytevector-all*))))))
 
 (define (request-package-handler request-path)
   ;; Note: Use Content-Security-Policy to protect against "clickjacking"
