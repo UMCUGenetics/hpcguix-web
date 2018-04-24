@@ -16,17 +16,18 @@
 
 include guile.am
 
-moddir=$(prefix)/share/guile/site/@GUILE_EFFECTIVE_VERSION@
-godir=$(libdir)/guile/@GUILE_EFFECTIVE_VERSION@/ccache
+moddir=@guilemoduledir@
+godir=@guileobjectdir@
+datadir=@datarootdir@
 
 SOURCES =                                               \
-  www/config.scm                                        \
   www/util.scm                                          \
   www/pages.scm                                         \
   www/pages/javascript.scm                              \
   www/pages/package.scm                                 \
   www/pages/error.scm                                   \
-  www/pages/welcome.scm
+  www/pages/welcome.scm                                 \
+  hpcweb-configuration.scm
 
 SUFFIXES += .js .min.js
 
@@ -54,6 +55,7 @@ nobase_dist_assets_DATA =                               \
   static/images/sort_both.png                           \
   static/images/sort_desc.png                           \
   static/images/logo.png                                \
+  static/images/logo-small.png                          \
   static/images/cubes.png                               \
   static/hpcguix-web.min.js                             \
   static/highlight/highlight.min.js                     \
@@ -64,13 +66,55 @@ nobase_dist_assets_DATA =                               \
   static/datatables.min.js                              \
   static/jquery-2.2.4.min.js
 
-EXTRA_DIST += run.in
-CLEANFILES += $(wildcard static/*.min.js)
+EXTRA_DIST +=					\
+  run.in					\
+  www/config.scm.in
+
+CLEANFILES +=					\
+  $(wildcard static/*.min.js)			\
+  run						\
+  www/config.scm				\
+  www/config.go
+
+nobase_nodist_bin_SCRIPTS = run
+
+BUILT_SOURCES = www/config.scm
+nobase_nodist_mod_DATA = www/config.scm
+nobase_nodist_go_DATA = www/config.go
 
 # Flags for 'guild compile'.
 GUILD_COMPILE_FLAGS = -Wformat -Wunbound-variable -Warity-mismatch
 
+# Create the 'www' directory on build path and relocate static file
+# path
+www/config.scm: www/config.scm.in
+	$(MKDIR_P) www
+	$(SED) -e 's,@''datarootdir''@,$(abs_top_srcdir),g' \
+	       < $< > $@.tmp
+	mv $@.tmp $@
+
+# Relocate module and compiled module path in 'run'.
+# Make it executable.
+run: run.in
+	$(SED) -e 's,@''guilemoduledir''@\(.*\)%load-path,$(abs_top_srcdir)\1%load-path,g' \
+	       -e 's,@''guileobjectdir''@\(.*\)%load-compiled-path,$(abs_top_builddir)\1%load-compiled-path,g' \
+	       -e 's,@''GUILE''@,$(GUILE),g' \
+	       < $< > $@.tmp
+	chmod +x $@.tmp
+	mv $@.tmp $@
+
+# Relocate module and compiled module path in 'run'.
+install-exec-hook:
+	$(SED) -e 's,$(abs_top_srcdir),$(moddir),g'  \
+	       -e 's,$(abs_top_builddir),$(godir),g' \
+	       $(DESTDIR)$(bindir)/run -i
+
+# Relocate static file path in 'www/config.scm'.
+install-data-hook:
+	$(SED) -e 's,$(abs_top_srcdir),$(datadir)/hpcguix-web,g' \
+	       $(DESTDIR)$(moddir)/www/config.scm -i
+
 # Build 'run' by default.  Compile it so we get warnings.
 all-local: run
-	$(AM_V_GEN)$(GUILD) compile $(GUILD_COMPILE_FLAGS)	\
-	  -L "$(top_srcdir)"  run
+	$(AM_V_GEN)$(GUILD) compile $(GUILD_COMPILE_FLAGS) \
+	  -L "$(top_srcdir)" -L "$(top_builddir)"  run
