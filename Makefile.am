@@ -89,7 +89,7 @@ GUILD_COMPILE_FLAGS = -Wformat -Wunbound-variable -Warity-mismatch
 # path
 www/config.scm: www/config.scm.in
 	$(MKDIR_P) www
-	$(SED) -e 's,@''datarootdir''@,$(abs_top_srcdir),g' \
+	$(SED) -e 's,@''datarootdir''@,$(datadir)/hpcguix-web,g'	\
 	       < $< > $@.tmp
 	mv $@.tmp $@
 
@@ -108,11 +108,6 @@ install-exec-hook:
 	$(SED) -e 's,$(abs_top_srcdir),$(moddir),g'  \
 	       -e 's,$(abs_top_builddir),$(godir),g' \
 	       $(DESTDIR)$(bindir)/run -i
-
-# Relocate static file path in 'www/config.scm'.
-install-data-hook:
-	$(SED) -e 's,$(abs_top_srcdir),$(datadir)/hpcguix-web,g' \
-	       $(DESTDIR)$(moddir)/www/config.scm -i
 
 # Build 'run' by default.  Compile it so we get warnings.
 all-local: run
