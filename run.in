@@ -93,16 +93,15 @@
               (access? cache-timeout-file F_OK))
       (let ((all-packages (fold-packages cons '()))
             (package->json (lambda (package)
-                             (json (object
-                                    ("name"     ,(package-name package))
-                                    ("version"  ,(package-version package))
-                                    ("synopsis" ,(package-synopsis package))
-                                    ("homepage" ,(package-home-page package))
-                                    ("module"   ,(string-drop-right
-                                                  (last (string-split (location-file
-                                                                       (package-location package))
-                                                                      #\/))
-                                                  4)))))))
+			     `(("name"     ,@(package-name package))
+			       ("version"  ,@(package-version package))
+			       ("synopsis" ,@(package-synopsis package))
+			       ("homepage" ,@(package-home-page package))
+			       ("module"   ,@(string-drop-right
+					      (last (string-split (location-file
+								   (package-location package))
+								  #\/))
+					      4))))))
         (with-atomic-file-output packages-file
           (lambda (port)
             (scm->json (map package->json
