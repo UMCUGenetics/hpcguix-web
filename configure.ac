@@ -27,6 +27,12 @@ if test "x$GUILD" = "x"; then
    AC_MSG_ERROR(['guild' binary not found; please check your guile-2.2 installation.])
 fi
 
+GUILE_MODULE_AVAILABLE([have_guix_inferior], [(guix inferior)])
+GUILE_MODULE_AVAILABLE([have_guix_channels], [(guix channels)])
+if test "x$have_guix_inferior$have_guix_channels" = "xnono"; then
+  AC_MSG_ERROR([Guix appears to be too old; please upgrade to Guix > 0.15.0.])
+fi
+
 AM_MISSING_PROG([UGLIFYJS], [uglify-js])
 AM_CONDITIONAL([HAVE_UGLIFYJS], [test "x$UGLIFYJS" != "x"])
 

@@ -22,6 +22,7 @@ datadir=@datarootdir@
 
 SOURCES =                                               \
   www/util.scm                                          \
+  www/packages.scm					\
   www/pages.scm                                         \
   www/pages/javascript.scm                              \
   www/pages/package.scm                                 \

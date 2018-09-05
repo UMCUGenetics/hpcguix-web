@@ -25,14 +25,10 @@
 (use-modules (commonmark)
              (hpcweb-configuration)
              (gnu packages)
-             (guix licenses)
-             (guix packages)
-             (guix records)
-             (guix utils)
-             (guix build utils)
+             (guix git)
+             ((guix build utils) #:select (mkdir-p))
              (ice-9 getopt-long)
              (ice-9 match)
-             (ice-9 rdelim)
              (json)
              (rnrs bytevectors)
              (rnrs io ports)
@@ -44,6 +40,7 @@
              (web server)
              (web uri)
              (www config)
+             (www packages)
              (www pages error)
              (www pages javascript)
              (www pages package)
@@ -83,34 +80,19 @@
 
 (define (request-packages-json-handler request)
   (let* ((packages-file (string-append %www-cache-root "/packages.json"))
-         (cache-timeout-file (string-append %www-cache-root "/cache.timeout"))
-         (cache-timeout-exists? (access? cache-timeout-file F_OK)))
+         (git-cache     (string-append %www-cache-root "/git"))
+         (select?       (if (defined? 'site-config)
+                            (hpcweb-configuration-package-filter-proc
+                             site-config)
+                            (const #t))))
     ;; Write the packages JSON to disk to speed up the page load.
     ;; This caching mechanism prevents new packages from propagating
     ;; into the search.  For this, we can manually create a file
     ;; "cache.timeout" in the %www-root.
-    (when (or (not (access? packages-file F_OK))
-              (access? cache-timeout-file F_OK))
-      (let ((all-packages (fold-packages cons '()))
-            (package->json (lambda (package)
-			     `(("name"     ,@(package-name package))
-			       ("version"  ,@(package-version package))
-			       ("synopsis" ,@(package-synopsis package))
-			       ("homepage" ,@(package-home-page package))
-			       ("module"   ,@(string-drop-right
-					      (last (string-split (location-file
-								   (package-location package))
-								  #\/))
-					      4))))))
-        (with-atomic-file-output packages-file
-          (lambda (port)
-            (scm->json (map package->json
-                            (if (defined? 'site-config)
-                                (filter (hpcweb-configuration-package-filter-proc site-config) all-packages)
-                                all-packages))
-                       port)))
-        (when cache-timeout-exists?
-          (delete-file cache-timeout-file))))
+    (parameterize ((%repository-cache-directory git-cache))
+      (mkdir-p git-cache)
+      (maybe-update-package-file packages-file
+                                 #:select? select?))
     (request-file-handler request)))
 
 (define (request-file-handler request)
