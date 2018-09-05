@@ -127,7 +127,10 @@
          (file-stat (stat full-path #f))
          (modified  (and file-stat
                          (make-time time-utc
-                                    0 (stat:mtime file-stat)))))
+                                    0 (stat:mtime file-stat))))
+         (ttl       (if (string-contains full-path "/static/")
+                        (* 3600 24)               ;CSS and JS files
+                        3600)))                   ;'packages.json'
     (define (send-file)
       ;; Do not handle files larger than %maximum-file-size.
       ;; Please increase the file size if your server can handle it.
@@ -142,7 +145,8 @@
                                       site-config
                                       '()))))))
           (values `((content-type . ,(response-content-type full-path))
-                    (last-modified . ,(time-utc->date modified)))
+                    (last-modified . ,(time-utc->date modified))
+                    (cache-control . ((max-age . ,ttl))))
                   (call-with-input-file full-path
                     get-bytevector-all*))))
 
