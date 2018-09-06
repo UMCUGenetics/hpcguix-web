@@ -26,6 +26,7 @@
              (hpcweb-configuration)
              (gnu packages)
              (guix git)
+             ((guix channels) #:select (%default-channels))
              ((guix build utils) #:select (mkdir-p))
              (ice-9 getopt-long)
              (ice-9 match)
@@ -84,14 +85,17 @@
          (select?       (if (defined? 'site-config)
                             (hpcweb-configuration-package-filter-proc
                              site-config)
-                            (const #t))))
+                            (const #t)))
+         (channels      (if (defined? 'site-config)
+                            (hpcweb-configuration-channels site-config)
+                            %default-channels)))
     ;; Write the packages JSON to disk to speed up the page load.
     ;; This caching mechanism prevents new packages from propagating
     ;; into the search.  For this, we can manually create a file
     ;; "cache.timeout" in the %www-root.
     (parameterize ((%repository-cache-directory git-cache))
       (mkdir-p git-cache)
-      (maybe-update-package-file packages-file
+      (maybe-update-package-file packages-file channels
                                  #:select? select?))
     (request-file-handler request)))
 

@@ -31,12 +31,12 @@
   #:use-module (json)
   #:export (maybe-update-package-file))
 
-(define (latest-inferior)
-  "Return an inferior pointing to the latest Guix."
+(define (latest-inferior channels)
+  "Return an inferior pointing to the latest instances of CHANNELS."
   (define open-inferior*
     (lift1 open-inferior %store-monad))
 
-  (mlet %store-monad ((profile (latest-channel-derivation)))
+  (mlet %store-monad ((profile (latest-channel-derivation channels)))
     (mbegin %store-monad
       (show-what-to-build* (list profile))
       (built-derivations (list profile))
@@ -54,12 +54,12 @@
 				       #\/))
 		   4))))
 
-(define* (update-package-file file #:key (select? (const #t)))
+(define* (update-package-file file channels #:key (select? (const #t)))
   "Atomically update FILE with the a JSON representation of the latest set of
 Guix packages."
   (with-store store
     (run-with-store store
-      (mlet %store-monad ((inferior (latest-inferior)))
+      (mlet %store-monad ((inferior (latest-inferior channels)))
         (with-atomic-file-output file
           (lambda (port)
             (scm->json (filter-map (lambda (package)
@@ -69,7 +69,7 @@ Guix packages."
                        port)))
         (return #t)))))
 
-(define* (maybe-update-package-file file
+(define* (maybe-update-package-file file channels
                                     #:key (select? (const #t))
                                     (expiration (* 3600 12)))
   "If FILE, a 'packages.json' meta-data file, does not exist, of it it's
@@ -99,7 +99,7 @@ return immediately."
              (dynamic-wind
                (const #t)
                (lambda ()
-                 (update-package-file file #:select? select?))
+                 (update-package-file file channels #:select? select?))
                (lambda ()
                  (close-port lock-port)
                  (delete-file lock))))))))))
