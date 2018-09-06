@@ -67,6 +67,7 @@ Guix packages."
                                           (inferior-package->json package)))
                                    (inferior-packages inferior))
                        port)))
+        (close-inferior inferior)
         (return #t)))))
 
 (define* (maybe-update-package-file file channels
