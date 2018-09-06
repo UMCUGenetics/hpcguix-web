@@ -8,7 +8,8 @@
             hpcweb-configuration-package-filter-proc
             hpcweb-configuration-package-page-extension-proc
             hpcweb-configuration-menu
-            hpcweb-configuration-channels))
+            hpcweb-configuration-channels
+            hpcweb-configuration-package-list-expiration))
 
 (define-record-type* <hpcweb-configuration>
   hpcweb-configuration make-hpcweb-configuration
@@ -25,4 +26,6 @@
   (menu                         hpcweb-configuration-menu
                                 (default '()))
   (channels                     hpcweb-configuration-channels
-                                (default %default-channels)))
+                                (default %default-channels))
+  (package-list-expiration      hpcweb-configuration-package-list-expiration
+                                (default (* 12 3600))))
