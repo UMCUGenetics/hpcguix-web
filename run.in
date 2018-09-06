@@ -60,6 +60,18 @@
 ;; In this section, the different handlers are implemented.
 ;;
 
+(define (respond-404 request)
+  "Return 404 with a pretty HTML page."
+  (values (build-response #:code 404
+                          #:headers '((content-type . (text/html))))
+          (with-output-to-string
+            (lambda _
+              (sxml->xml
+               (page-error-404 (uri-path (request-uri request))
+                               (if (defined? 'site-config)
+                                   site-config
+                                   '())))))))
+
 (define (request-markdown-handler request-path)
   (let ((file (string-append %www-markdown-root "/" request-path ".md")))
     (values
@@ -144,8 +156,9 @@
       ;; Do not handle files larger than %maximum-file-size.
       ;; Please increase the file size if your server can handle it.
       (if (> (stat:size file-stat) %www-max-file-size)
-          (values `((content-type . (text/html))
-                    (last-modified . ,(time-utc->date modified)))
+          (values (build-response #:code 404
+                                  #:headers
+                                  `((content-type . (text/html))))
                   (with-output-to-string
                     (lambda _
                       (sxml->xml (page-error-filesize
@@ -160,14 +173,7 @@
                     get-bytevector-all*))))
 
     (cond ((not file-stat)
-           (values '((content-type . (text/html)))
-                   (with-output-to-string
-                     (lambda _
-                       (sxml->xml
-                        (page-error-404 path
-                                        (if (defined? 'site-config)
-                                            site-config
-                                            '())))))))
+           (respond-404 request))
           ((assoc-ref (request-headers request) 'if-modified-since)
            =>
            (lambda (client-date)
@@ -193,39 +199,44 @@
                                            '())) port)))))
 
 (define (request-scheme-page-handler request request-body request-path)
-  (values '((content-type . (text/html))
-            (content-security-policy . "frame-ancestors 'none';"))
-          (call-with-output-string
-            (lambda (port)
-              (set-port-encoding! port "utf8")
-              (format port "<!DOCTYPE html>~%")
-              (if (< (string-length request-path) 2)
-                  (sxml->xml (page-welcome "/" (if (defined? 'site-config)
-                                                   site-config '())) port)
-                  (let* ((function-symbol (string->symbol
-                                           (string-map
-                                            (lambda (x) (if (eq? x #\/) #\- x))
-                                            (substring request-path 1))))
-                         (module (resolve-module
-                                  (module-path '(www pages)
-                                   (string-split (substring request-path 1) #\/))
-                                  #:ensure #f))
-                         (page-symbol (symbol-append 'page- function-symbol)))
-                    (if module
-                        (let ((display-function
-                               (module-ref module page-symbol)))
-                          (if (eq? (request-method request) 'POST)
-                              (sxml->xml (display-function request-path
-                                          (if (defined? 'site-config)
-                                              site-config '())
-                                          #:post-data
-                                          (utf8->string request-body)) port)
-                              (sxml->xml (display-function request-path
-                                           (if (defined? 'site-config)
-                                               site-config '())) port)))
-                        (sxml->xml (page-error-404 request-path
-                                    (if (defined? 'site-config)
-                                        site-config '())) port))))))))
+  (define welcome?
+    ;; Should we land on the welcome page?
+    (< (string-length request-path) 2))
+
+  (define module
+    (and (not welcome?)
+         (resolve-module
+          (module-path '(www pages)
+                       (string-split (substring request-path 1) #\/))
+          #:ensure #f)))
+
+  (if (or welcome? module)
+      (values '((content-type . (text/html))
+                (content-security-policy . "frame-ancestors 'none';"))
+              (call-with-output-string
+                (lambda (port)
+                  (set-port-encoding! port "utf8")
+                  (format port "<!DOCTYPE html>~%")
+                  (if welcome?
+                      (sxml->xml (page-welcome "/" (if (defined? 'site-config)
+                                                       site-config '())) port)
+                      (let* ((function-symbol (string->symbol
+                                               (string-map
+                                                (lambda (x) (if (eq? x #\/) #\- x))
+                                                (substring request-path 1))))
+                             (page-symbol (symbol-append 'page-
+                                                         function-symbol))
+                             (display-function (module-ref module page-symbol)))
+                        (if (eq? (request-method request) 'POST)
+                            (sxml->xml (display-function request-path
+                                                         (if (defined? 'site-config)
+                                                             site-config '())
+                                                         #:post-data
+                                                         (utf8->string request-body)) port)
+                            (sxml->xml (display-function request-path
+                                                         (if (defined? 'site-config)
+                                                             site-config '())) port)))))))
+      (respond-404 request)))
 
 
 ;; ----------------------------------------------------------------------------
@@ -264,8 +275,7 @@
             (request-scheme-page-handler request request-body request-path))))
     (_
      ;; Nothing but GET is supported.
-     (page-error-404 request-path
-                     (if (defined? 'site-config) site-config '())))))
+     (respond-404 request))))
 
 
 ;; ----------------------------------------------------------------------------
