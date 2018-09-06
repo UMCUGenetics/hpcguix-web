@@ -34,10 +34,11 @@ SUFFIXES += .js .min.js
 
 if HAVE_UGLIFYJS
 .js.min.js:
-	$(UGLIFYJS) "$<" > "$@"
+	$(UGLIFYJS) "$<" > "$@".tmp
+	mv "$@.tmp" "$@"
 else
 .js.min.js:
-	cp "$<" > "$@"
+	cp "$<" "$@"
 endif
 
 assetsdir = $(datadir)/@PACKAGE@
