@@ -30,6 +30,9 @@
   #:use-module (ice-9 atomic)
   #:use-module (ice-9 vlist)
   #:use-module (ice-9 match)
+  #:use-module (texinfo)
+  #:use-module (texinfo html)
+  #:use-module (sxml simple)
   #:use-module (json)
   #:export (current-packages
             current-inferior
@@ -55,11 +58,25 @@
       (built-derivations (list profile))
       (open-inferior* (derivation->output-path profile)))))
 
+(define (package-synopsis-shtml package)
+  "Return an SXML representation of PACKAGE synopsis field with HTML
+vocabulary."
+  ;; 'texi-fragment->stexi' uses 'call-with-input-string', so make sure
+  ;; those string ports are Unicode-capable.
+  (with-fluids ((%default-port-encoding "UTF-8"))
+    (and=> (inferior-package-synopsis package)
+           (compose stexi->shtml texi-fragment->stexi))))
+
 (define (inferior-package->json package)
   "Return meta-data for PACKAGE as an alist that can be converted to JSON."
   `(("name"     ,@(inferior-package-name package))
     ("version"  ,@(inferior-package-version package))
-    ("synopsis" ,@(inferior-package-synopsis package))
+    ("synopsis" ,@(call-with-output-string
+                    (lambda (port)
+                      (sxml->xml (match (package-synopsis-shtml package)
+                                   (('div ('p text)) text)
+                                   (tree tree))
+                                 port))))
     ("homepage" ,@(inferior-package-home-page package))
     ("module"   ,@(string-drop-right
 		   (last (string-split (location-file
