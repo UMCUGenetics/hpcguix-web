@@ -27,9 +27,22 @@
   #:use-module ((guix utils)
                 #:select (location-file with-atomic-file-output))
   #:use-module (srfi srfi-1)
-  #:use-module (ice-9 threads)
+  #:use-module (ice-9 atomic)
+  #:use-module (ice-9 vlist)
+  #:use-module (ice-9 match)
   #:use-module (json)
-  #:export (maybe-update-package-file))
+  #:export (current-packages
+            current-inferior
+            maybe-update-package-file))
+
+(define current-packages
+  ;; Current package set as a vhash that maps package names to inferior
+  ;; packages.
+  (make-atomic-box vlist-null))
+
+(define current-inferior
+  ;; Current inferior.  This is needed only by 'package->variable-name'.
+  (make-atomic-box #f))
 
 (define (latest-inferior channels)
   "Return an inferior pointing to the latest instances of CHANNELS."
@@ -59,15 +72,30 @@
 Guix packages."
   (with-store store
     (run-with-store store
-      (mlet %store-monad ((inferior (latest-inferior channels)))
+      (mlet* %store-monad ((inferior (latest-inferior channels))
+                           (packages -> (inferior-packages inferior)))
         (with-atomic-file-output file
           (lambda (port)
             (scm->json (filter-map (lambda (package)
                                      (and (select? package)
                                           (inferior-package->json package)))
-                                   (inferior-packages inferior))
+                                   packages)
                        port)))
-        (close-inferior inferior)
+        (atomic-box-set! current-packages
+                         (fold (lambda (package table)
+                                 (vhash-cons (inferior-package-name package)
+                                             package table))
+                               vlist-null
+                               packages))
+
+        ;; There's a time window during which this is out-of-sync compared to
+        ;; CURRENT-PACKAGES, but it doesn't matter much.
+        (atomic-box-set! current-inferior inferior)
+
+        ;; Note: We don't even add a guardian for INFERIOR because it'll be
+        ;; collected eventually anyway (for instance the pipe guardian will
+        ;; do its job.)
+
         (return #t)))))
 
 (define* (maybe-update-package-file file channels
@@ -82,7 +110,8 @@ return immediately."
   (let ((st (stat file #f)))
     (when (or (not st)
               (> (- ((@ (guile) current-time)) (stat:mtime st))
-                 expiration))
+                 expiration)
+              (vlist-null? (atomic-box-ref current-packages)))
       (let ((lock-port
              (catch 'system-error
                (lambda ()

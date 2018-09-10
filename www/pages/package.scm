@@ -19,35 +19,60 @@
   #:use-module (hpcweb-configuration)
   #:use-module (www pages)
   #:use-module (www pages error)
+  #:use-module (www packages)
   #:use-module (www config)
-  #:use-module (gnu packages)
-  #:use-module (guix discovery)
   #:use-module (guix memoization)
-  #:use-module (guix packages)
+  #:use-module (guix inferior)
   #:use-module (guix utils)
-  #:use-module (ice-9 control)
+  #:use-module (ice-9 vlist)
+  #:use-module (ice-9 atomic)
   #:use-module (ice-9 match)
   #:use-module (ice-9 rdelim)
+  #:use-module (ice-9 match)
   #:use-module (texinfo)
   #:use-module (texinfo html)
   #:export (page-package))
 
-(define package->variable-name
-  (mlambdaq (package)
-    "Return the name of the variable that defines PACKAGE, a package object,
+(define (read-at-location file line-number)
+  "Call 'read' at LINE-NUMBER in FILE and return its result."
+  (call-with-input-file file
+    (lambda (port)
+      (let loop ((line 0))
+        (cond ((= line (- line-number 1))
+               (read port))
+              ((>= line line-number)
+               #f)
+              (else
+               (begin
+                 (read-line port)
+                 (loop (+ 1 line)))))))))
+
+(define (package->variable-name package)
+  "Return the name of the variable that defines PACKAGE, a package object,
 or #f if we failed to find it."
-    (let/ec return
-      (let loop ((modules (all-modules (%package-module-path))))
-        (match modules
-          (() #f)
-          ((module . rest)
-           (module-map (lambda (symbol variable)
-                         (let ((value (false-if-exception
-                                       (variable-ref variable))))
-                           (and (eq? value package)
-                                (return symbol))))
-                       module)
-           (loop rest)))))))
+  (define path
+    (match (inferior-eval '(%package-module-path)
+                          (atomic-box-ref current-inferior))
+      ((lst ...)
+       (map (match-lambda
+              ((? string? str) str)
+              ((directory . sub-directory) directory))
+            lst))
+      (_ '())))
+
+  ;; XXX: There are many cases where this doesn't work, such as computed
+  ;; packages, or simply packages where the 'package' form is not strictly on
+  ;; the line that follows 'define'.
+  (match (inferior-package-location package)
+    ((? location? location)
+     (let ((file (search-path path (location-file location))))
+       (and file
+            (match (read-at-location file (- (location-line location) 1))
+              (((or 'define 'define-public) (? symbol? name) _ ...)
+               name)
+              (_
+               #f)))))
+    (#f #f)))
 
 (define (package-description-shtml package)
   "Return an SXML representation of PACKAGE description field with HTML
@@ -55,7 +80,7 @@ vocabulary."
   ;; 'texi-fragment->stexi' uses 'call-with-input-string', so make sure
   ;; those string ports are Unicode-capable.
   (with-fluids ((%default-port-encoding "UTF-8"))
-    (and=> (package-description package)
+    (and=> (inferior-package-description package)
            (compose stexi->shtml texi-fragment->stexi))))
 
 (define %not-slash
@@ -64,7 +89,8 @@ vocabulary."
 (define (page-package request-path site-config)
   (match (string-tokenize request-path %not-slash)
     (("package" name)
-     (let ((packages (find-packages-by-name name)))
+     (let ((packages (vhash-fold* cons '() name
+                                  (atomic-box-ref current-packages))))
        (if (null? packages)
            (page-root-template "Oops!" request-path site-config
                                `((h2 "Uh-oh...")
@@ -82,11 +108,11 @@ vocabulary."
 
               ,(map
                 (lambda (instance)
-                  (let ((location (package-location instance)))
+                  (let ((location (inferior-package-location instance)))
                     `((table (@ (style "width: 100%"))
                              (tr
                               (td (strong "Version"))
-                              (td ,(package-version instance)))
+                              (td ,(inferior-package-version instance)))
                              (tr
                               (td (strong "Defined at"))
                               (td (code (@ (class "nobg"))
@@ -96,7 +122,10 @@ vocabulary."
                              (tr
                               (td (strong "Symbol name"))
                               (td (code (@ (class "nobg"))
-                                        ,(symbol->string (package->variable-name instance)))))
+                                        ,(match (package->variable-name
+                                                 instance)
+                                           (#f "?")
+                                           (sym (symbol->string sym))))))
                              (tr
                               (td (@ (style "width: 150pt")) (strong "Installation command"))
                               (td (pre (code (@ (class "bash"))
@@ -105,12 +134,17 @@ vocabulary."
                                                    (hpcweb-configuration-guix-command site-config)
                                                    "guix")
                                               " package -i "
-                                              ,name ,(if (> (length packages) 1)
-                                                         (string-append
-                                                          "@" (package-version instance)) ""))))))
+                                              ,name
+                                              ,(if (> (length packages) 1)
+                                                   (string-append
+                                                    "@"
+                                                    (inferior-package-version instance))
+                                                   ""))))))
                              (tr
                               (td (strong "Homepage"))
-                              (td (a (@ (href ,(package-home-page instance))) ,(package-home-page instance)))))
+                              (td (a (@ (href ,(inferior-package-home-page
+                                                instance)))
+                                     ,(inferior-package-home-page instance)))))
                       (hr))))
                 packages)
               ,(if (not (null? site-config))
