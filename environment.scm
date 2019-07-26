@@ -45,6 +45,7 @@
   (inputs
    `(("guix" ,guix)
      ("guile" ,guile-2.2)
+     ("guile-json" ,guile-json-3)
      ("guile-commonmark" ,guile-commonmark)))
   (home-page "https://github.com/UMCUGenetics/hpcguix-web")
   (synopsis "Web interface for cluster deployments of Guix")

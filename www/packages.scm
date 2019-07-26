@@ -1,4 +1,4 @@
-;;; Copyright © 2017, 2018 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017, 2018, 2019 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2016, 2017 Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2018 Pierre-Antoine Rouby <contact@parouby.fr>
 ;;;
@@ -93,10 +93,11 @@ Guix packages."
                            (packages -> (inferior-packages inferior)))
         (with-atomic-file-output file
           (lambda (port)
-            (scm->json (filter-map (lambda (package)
-                                     (and (select? package)
-                                          (inferior-package->json package)))
-                                   packages)
+            (scm->json (list->vector
+                        (filter-map (lambda (package)
+                                      (and (select? package)
+                                           (inferior-package->json package)))
+                                    packages))
                        port)))
         (atomic-box-set! current-packages
                          (fold (lambda (package table)
