@@ -1,5 +1,5 @@
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
-;;; Copyright © 2017, 2018 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017, 2018, 2019 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -133,7 +133,7 @@ vocabulary."
                                               ,(if (not (null? site-config))
                                                    (hpcweb-configuration-guix-command site-config)
                                                    "guix")
-                                              " package -i "
+                                              " install "
                                               ,name
                                               ,(if (> (length packages) 1)
                                                    (string-append
