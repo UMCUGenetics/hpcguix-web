@@ -18,6 +18,7 @@
              (gnu packages)
              (gnu packages autotools)
              (gnu packages guile)
+             (gnu packages guile-xyz)
              (gnu packages lisp)
              (gnu packages package-management)
              (gnu packages pkg-config))
