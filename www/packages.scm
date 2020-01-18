@@ -1,4 +1,4 @@
-;;; Copyright © 2017, 2018, 2019 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017, 2018, 2019, 2020 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2016, 2017 Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2018 Pierre-Antoine Rouby <contact@parouby.fr>
 ;;;
@@ -28,6 +28,7 @@
                 #:select (location-file with-atomic-file-output))
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 atomic)
+  #:use-module (ice-9 threads)
   #:use-module (ice-9 vlist)
   #:use-module (ice-9 match)
   #:use-module (texinfo)
