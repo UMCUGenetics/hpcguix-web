@@ -102,6 +102,7 @@ Guix packages."
                                vlist-null
                                packages))
 
+        (close-inferior inferior)
         (return #t)))))
 
 (define* (maybe-update-package-file file channels
