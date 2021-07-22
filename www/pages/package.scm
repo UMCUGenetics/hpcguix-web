@@ -27,25 +27,9 @@
   #:use-module (ice-9 vlist)
   #:use-module (ice-9 atomic)
   #:use-module (ice-9 match)
-  #:use-module (ice-9 rdelim)
-  #:use-module (ice-9 match)
   #:use-module (texinfo)
   #:use-module (texinfo html)
   #:export (page-package))
-
-(define (read-at-location file line-number)
-  "Call 'read' at LINE-NUMBER in FILE and return its result."
-  (call-with-input-file file
-    (lambda (port)
-      (let loop ((line 0))
-        (cond ((= line (- line-number 1))
-               (read port))
-              ((>= line line-number)
-               #f)
-              (else
-               (begin
-                 (read-line port)
-                 (loop (+ 1 line)))))))))
 
 (define (package-description-shtml package)
   "Return an SXML representation of PACKAGE description field with HTML
