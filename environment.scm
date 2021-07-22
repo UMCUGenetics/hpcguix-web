@@ -19,7 +19,7 @@
              (gnu packages autotools)
              (gnu packages guile)
              (gnu packages guile-xyz)
-             (gnu packages lisp)
+             (gnu packages lisp-xyz)
              (gnu packages package-management)
              (gnu packages pkg-config))
 
@@ -44,8 +44,8 @@
      ("pkg-config" ,pkg-config)))
   (inputs
    `(("guix" ,guix)
-     ("guile" ,guile-2.2)
-     ("guile-json" ,guile-json-3)
+     ("guile" ,@(assoc-ref (package-inputs guix) "guile"))
+     ("guile-json" ,guile-json-4)
      ("guile-commonmark" ,guile-commonmark)))
   (home-page "https://github.com/UMCUGenetics/hpcguix-web")
   (synopsis "Web interface for cluster deployments of Guix")
