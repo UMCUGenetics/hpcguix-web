@@ -39,6 +39,12 @@
   ;; packages.
   (make-atomic-box vlist-null))
 
+(define current-inferior
+  ;; Current inferior.  It is kept around so that requests such as
+  ;; 'inferior-package-description' that involve communication with the
+  ;; inferior can succeed.
+  (make-atomic-box #f))
+
 (define (package-synopsis-shtml package)
   "Return an SXML representation of PACKAGE synopsis field with HTML
 vocabulary."
@@ -85,7 +91,13 @@ Guix packages."
                            vlist-null
                            packages))
 
-    (close-inferior inferior)))
+    ;; Keep INFERIOR around so that operations on CURRENT-PACKAGES, such as
+    ;; calls to 'inferior-package-description', succeed (there's a time
+    ;; window during which this is out-of-sync compared to CURRENT-PACKAGES,
+    ;; but it doesn't matter much.)
+    (let ((previous (atomic-box-swap! current-inferior inferior)))
+      (when previous
+        (close-inferior previous)))))
 
 (define* (maybe-update-package-file file channels
                                     #:key (select? (const #t))
