@@ -1,5 +1,5 @@
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
-;;; Copyright © 2017, 2018, 2019 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017, 2018, 2019, 2021 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -47,33 +47,6 @@
                  (read-line port)
                  (loop (+ 1 line)))))))))
 
-(define (package->variable-name package)
-  "Return the name of the variable that defines PACKAGE, a package object,
-or #f if we failed to find it."
-  (define path
-    (match (inferior-eval '(%package-module-path)
-                          (atomic-box-ref current-inferior))
-      ((lst ...)
-       (map (match-lambda
-              ((? string? str) str)
-              ((directory . sub-directory) directory))
-            lst))
-      (_ '())))
-
-  ;; XXX: There are many cases where this doesn't work, such as computed
-  ;; packages, or simply packages where the 'package' form is not strictly on
-  ;; the line that follows 'define'.
-  (match (inferior-package-location package)
-    ((? location? location)
-     (let ((file (search-path path (location-file location))))
-       (and file
-            (match (read-at-location file (- (location-line location) 1))
-              (((or 'define 'define-public) (? symbol? name) _ ...)
-               name)
-              (_
-               #f)))))
-    (#f #f)))
-
 (define (package-description-shtml package)
   "Return an SXML representation of PACKAGE description field with HTML
 vocabulary."
@@ -119,13 +92,6 @@ vocabulary."
                                         ,(string-append (location-file location) ":"
                                                         (number->string
                                                          (location-line location))))))
-                             (tr
-                              (td (strong "Symbol name"))
-                              (td (code (@ (class "nobg"))
-                                        ,(match (package->variable-name
-                                                 instance)
-                                           (#f "?")
-                                           (sym (symbol->string sym))))))
                              (tr
                               (td (@ (style "width: 150pt")) (strong "Installation command"))
                               (td (pre (code (@ (class "bash"))

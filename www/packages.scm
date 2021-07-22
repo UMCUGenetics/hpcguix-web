@@ -1,4 +1,4 @@
-;;; Copyright © 2017, 2018, 2019, 2020 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017, 2018, 2019, 2020, 2021 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2016, 2017 Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2018 Pierre-Antoine Rouby <contact@parouby.fr>
 ;;;
@@ -36,17 +36,12 @@
   #:use-module (sxml simple)
   #:use-module (json)
   #:export (current-packages
-            current-inferior
             maybe-update-package-file))
 
 (define current-packages
   ;; Current package set as a vhash that maps package names to inferior
   ;; packages.
   (make-atomic-box vlist-null))
-
-(define current-inferior
-  ;; Current inferior.  This is needed only by 'package->variable-name'.
-  (make-atomic-box #f))
 
 (define (latest-inferior channels)
   "Return an inferior pointing to the latest instances of CHANNELS."
@@ -106,14 +101,6 @@ Guix packages."
                                              package table))
                                vlist-null
                                packages))
-
-        ;; There's a time window during which this is out-of-sync compared to
-        ;; CURRENT-PACKAGES, but it doesn't matter much.
-        (atomic-box-set! current-inferior inferior)
-
-        ;; Note: We don't even add a guardian for INFERIOR because it'll be
-        ;; collected eventually anyway (for instance the pipe guardian will
-        ;; do its job.)
 
         (return #t)))))
 
