@@ -19,10 +19,6 @@
 (define-module (www packages)
   #:use-module (guix inferior)
   #:use-module (guix channels)
-  #:use-module (guix store)
-  #:use-module (guix monads)
-  #:use-module (guix derivations)
-  #:use-module (guix profiles)
   #:use-module (guix ui)
   #:use-module ((guix utils)
                 #:select (location-file with-atomic-file-output))
@@ -42,17 +38,6 @@
   ;; Current package set as a vhash that maps package names to inferior
   ;; packages.
   (make-atomic-box vlist-null))
-
-(define (latest-inferior channels)
-  "Return an inferior pointing to the latest instances of CHANNELS."
-  (define open-inferior*
-    (lift1 open-inferior %store-monad))
-
-  (mlet %store-monad ((profile (latest-channel-derivation channels)))
-    (mbegin %store-monad
-      (show-what-to-build* (list profile))
-      (built-derivations (list profile))
-      (open-inferior* (derivation->output-path profile)))))
 
 (define (package-synopsis-shtml package)
   "Return an SXML representation of PACKAGE synopsis field with HTML
@@ -83,27 +68,24 @@ vocabulary."
 (define* (update-package-file file channels #:key (select? (const #t)))
   "Atomically update FILE with the a JSON representation of the latest set of
 Guix packages."
-  (with-store store
-    (run-with-store store
-      (mlet* %store-monad ((inferior (latest-inferior channels))
-                           (packages -> (inferior-packages inferior)))
-        (with-atomic-file-output file
-          (lambda (port)
-            (scm->json (list->vector
-                        (filter-map (lambda (package)
-                                      (and (select? package)
-                                           (inferior-package->json package)))
-                                    packages))
-                       port)))
-        (atomic-box-set! current-packages
-                         (fold (lambda (package table)
-                                 (vhash-cons (inferior-package-name package)
-                                             package table))
-                               vlist-null
-                               packages))
+  (let* ((inferior (inferior-for-channels channels))
+         (packages (inferior-packages inferior)))
+    (with-atomic-file-output file
+      (lambda (port)
+        (scm->json (list->vector
+                    (filter-map (lambda (package)
+                                  (and (select? package)
+                                       (inferior-package->json package)))
+                                packages))
+                   port)))
+    (atomic-box-set! current-packages
+                     (fold (lambda (package table)
+                             (vhash-cons (inferior-package-name package)
+                                         package table))
+                           vlist-null
+                           packages))
 
-        (close-inferior inferior)
-        (return #t)))))
+    (close-inferior inferior)))
 
 (define* (maybe-update-package-file file channels
                                     #:key (select? (const #t))
