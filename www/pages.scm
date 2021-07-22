@@ -83,9 +83,10 @@
            ,content-tree)
       (div (@ (id "footer-box")
               (class "width-control"))
-           (p "Made with λ by the GNU Guix community — Copyright © 2017, 2018. "
+           (p "Made with λ by the GNU Guix community — "
+              "Copyright © 2017–2021 The hpcguix-web Authors. "
               (a (@ (href "https://github.com/UMCUGenetics/hpcguix-web"))
-                 "Download the source code of this page") ".")
+                 "Source code of this page") ".")
            (p (a (@ (href "/javascript")
              (data-jslicense "1"))
                  "JavaScript license information")))))))
