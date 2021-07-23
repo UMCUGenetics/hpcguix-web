@@ -163,7 +163,7 @@ package."
                                                   (inferior-package-version instance))
                                                  ""))))))
                            (tr
-                            (td (strong "Homepage"))
+                            (td (strong "Home page"))
                             (td (a (@ (href ,(inferior-package-home-page
                                               instance)))
                                    ,(inferior-package-home-page instance)))))
