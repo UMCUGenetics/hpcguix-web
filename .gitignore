@@ -9,5 +9,6 @@ config.log
 config.status
 configure
 env
+/hpcguix-web
 pre-inst-env
 *.min.js

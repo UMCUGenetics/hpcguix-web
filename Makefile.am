@@ -69,16 +69,16 @@ nobase_dist_assets_DATA =                               \
   static/jquery-2.2.4.min.js
 
 EXTRA_DIST +=					\
-  run.in					\
+  hpcguix-web.in				\
   www/config.scm.in
 
 CLEANFILES +=					\
   $(wildcard static/*.min.js)			\
-  run						\
+  hpcguix-web					\
   www/config.scm				\
   www/config.go
 
-nobase_nodist_bin_SCRIPTS = run
+nobase_nodist_bin_SCRIPTS = hpcguix-web
 
 BUILT_SOURCES = www/config.scm
 nobase_nodist_mod_DATA = www/config.scm
@@ -95,9 +95,9 @@ www/config.scm: www/config.scm.in
 	       < $< > $@.tmp
 	mv $@.tmp $@
 
-# Relocate module and compiled module path in 'run'.
+# Relocate module and compiled module path in 'hpcguix-web'.
 # Make it executable.
-run: run.in
+hpcguix-web: hpcguix-web.in
 	$(SED) -e 's,@''guilemoduledir''@\(.*\)%load-path,$(abs_top_srcdir)\1%load-path,g' \
 	       -e 's,@''guileobjectdir''@\(.*\)%load-compiled-path,$(abs_top_builddir)\1%load-compiled-path,g' \
 	       -e 's,@''GUILE''@,$(GUILE),g' \
@@ -105,13 +105,13 @@ run: run.in
 	chmod +x $@.tmp
 	mv $@.tmp $@
 
-# Relocate module and compiled module path in 'run'.
+# Relocate module and compiled module path in 'hpcguix-web'.
 install-exec-hook:
 	$(SED) -e 's,$(abs_top_srcdir),$(moddir),g'  \
 	       -e 's,$(abs_top_builddir),$(godir),g' \
-	       $(DESTDIR)$(bindir)/run -i
+	       $(DESTDIR)$(bindir)/hpcguix-web -i
 
-# Build 'run' by default.  Compile it so we get warnings.
-all-local: run
+# Build 'hpcguix-web' by default.  Compile it so we get warnings.
+all-local: hpcguix-web
 	$(AM_V_GEN)$(GUILD) compile $(GUILD_COMPILE_FLAGS) \
-	  -L "$(top_srcdir)" -L "$(top_builddir)"  run
+	  -L "$(top_srcdir)" -L "$(top_builddir)"  hpcguix-web

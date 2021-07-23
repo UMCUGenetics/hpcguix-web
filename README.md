@@ -14,5 +14,5 @@ autoreconf -vfi
 make
 
 # Run the web interface
-./run
+./env ./hpcguix-web
 ```
