@@ -23,10 +23,13 @@
   #:use-module (www config)
   #:use-module (guix memoization)
   #:use-module (guix inferior)
+  #:use-module (guix channels)
   #:use-module (guix utils)
+  #:use-module (srfi srfi-1)
   #:use-module (ice-9 vlist)
   #:use-module (ice-9 atomic)
   #:use-module (ice-9 match)
+  #:use-module (web uri)
   #:use-module (texinfo)
   #:use-module (texinfo html)
   #:export (page-package))
@@ -39,6 +42,79 @@ vocabulary."
   (with-fluids ((%default-port-encoding "UTF-8"))
     (and=> (inferior-package-description package)
            (compose stexi->shtml texi-fragment->stexi))))
+
+(define (inferior-package-channels package)
+  "Return the list of channels PACKAGE, an inferior package, comes from."
+  (map sexp->channel (inferior-package-provenance package)))
+
+(define %vcs-web-views
+  ;; Hard-coded list of host names and corresponding web view URL templates.
+  (let ((labhub-url (lambda (repository-url commit location)
+                      (string-append
+                       (if (string-suffix? ".git" repository-url)
+                           (string-drop-right repository-url 4)
+                           repository-url)
+                       "/blob/" commit "/" (location-file location)
+                       "#L" (number->string (location-line location))))))
+    `(("git.savannah.gnu.org"
+       ,(lambda (repository-url commit location)
+          (string-append (string-replace-substring repository-url
+                                                   "/git/" "/cgit/")
+                         "/tree/" (location-file location) "?id=" commit
+                         "#n" (number->string (location-line location)))))
+      ("notabug.org" ,labhub-url)
+      ("framagit.org" ,labhub-url)
+      ("gitlab.com" ,labhub-url)
+      ("gitlab.inria.fr" ,labhub-url)
+      ("github.com" ,labhub-url))))
+
+(define* (channel-file-url channel location)
+  "Return the URL to the web view of LOCATION in CHANNEL."
+  (let* ((url  (channel-url channel))
+         (uri  (string->uri url))
+         (host (and uri (uri-host uri))))
+    (and host
+         (match (assoc host %vcs-web-views)
+           (#f #f)
+           ((_ template)
+            (template url (channel-commit channel) location))))))
+
+(define (channel-home-page-url channel)
+  "Return the home page of CHANNEL."
+  (let* ((url  (channel-url channel))
+         (uri  (string->uri url))
+         (host (and uri (uri-host uri))))
+    (if (and host (string=? host "git.savannah.gnu.org")) ;the only exception
+        (string-replace-substring url "/git/" "/cgit/")
+        url)))
+
+(define (inferior-package-location-shtml package)
+  "Return SHTML denoting the source code location of PACKAGE, an inferior
+package."
+  (match (inferior-package-location package)
+    ((? location? location)
+     (let* ((channel (match (inferior-package-channels package)
+                       ((guix) guix)
+                       (() #f)
+                       (lst (find (negate guix-channel?) lst))))
+            (url     (and channel (channel-file-url channel location)))
+            (str     (string-append (location-file location) ":"
+                                    (number->string
+                                     (location-line location))))
+            (body    `(code (@ (class "nobg")) ,str)))
+       `(span
+         (code (@ (class "nobg"))
+               ,(if url
+                    `(a (@ (href ,url)) ,body)
+                    body))
+         ,@(if channel
+               `(" ("
+                 (a (@ (href ,(channel-home-page-url channel)))
+                    ,(channel-name channel))
+                 " channel)")
+               '()))))
+    (#f
+     "unknown location")))
 
 (define %not-slash
   (char-set-complement (char-set #\/)))
@@ -65,37 +141,33 @@ vocabulary."
 
               ,(map
                 (lambda (instance)
-                  (let ((location (inferior-package-location instance)))
-                    `((table (@ (style "width: 100%"))
-                             (tr
-                              (td (strong "Version"))
-                              (td ,(inferior-package-version instance)))
-                             (tr
-                              (td (strong "Defined at"))
-                              (td (code (@ (class "nobg"))
-                                        ,(string-append (location-file location) ":"
-                                                        (number->string
-                                                         (location-line location))))))
-                             (tr
-                              (td (@ (style "width: 150pt")) (strong "Installation command"))
-                              (td (pre (code (@ (class "bash"))
-                                             (string-append
-                                              ,(if (not (null? site-config))
-                                                   (hpcweb-configuration-guix-command site-config)
-                                                   "guix")
-                                              " install "
-                                              ,name
-                                              ,(if (> (length packages) 1)
-                                                   (string-append
-                                                    "@"
-                                                    (inferior-package-version instance))
-                                                   ""))))))
-                             (tr
-                              (td (strong "Homepage"))
-                              (td (a (@ (href ,(inferior-package-home-page
-                                                instance)))
-                                     ,(inferior-package-home-page instance)))))
-                      (hr))))
+                  `((table (@ (style "width: 100%"))
+                           (tr
+                            (td (strong "Version"))
+                            (td ,(inferior-package-version instance)))
+                           (tr
+                            (td (strong "Defined at"))
+                            (td ,(inferior-package-location-shtml instance)))
+                           (tr
+                            (td (@ (style "width: 150pt")) (strong "Installation command"))
+                            (td (pre (code (@ (class "bash"))
+                                           (string-append
+                                            ,(if (not (null? site-config))
+                                                 (hpcweb-configuration-guix-command site-config)
+                                                 "guix")
+                                            " install "
+                                            ,name
+                                            ,(if (> (length packages) 1)
+                                                 (string-append
+                                                  "@"
+                                                  (inferior-package-version instance))
+                                                 ""))))))
+                           (tr
+                            (td (strong "Homepage"))
+                            (td (a (@ (href ,(inferior-package-home-page
+                                              instance)))
+                                   ,(inferior-package-home-page instance)))))
+                    (hr)))
                 packages)
               ,(if (not (null? site-config))
                    (let ((func (hpcweb-configuration-package-page-extension-proc site-config)))
