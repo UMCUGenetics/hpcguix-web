@@ -16,7 +16,7 @@ commands:
 
 ```
 # Set up a proper environment and build the source code
-guix environment -l environment.scm
+guix shell --pure -Df environment.scm
 autoreconf -vfi
 ./configure
 make
