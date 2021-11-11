@@ -131,7 +131,7 @@
             [(string= extension "ico")  '(image/x-icon)]
             [(string= extension "pdf")  '(application/pdf)]
             [(string= extension "ttf")  '(application/font-sfnt)]
-            [(#t '(text/plain))])))
+            [else '(text/plain)])))
 
   (define (get-bytevector-all* port)
     ;; Like 'get-bytevector-all', but always returns a bytevector.
