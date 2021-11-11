@@ -27,6 +27,11 @@ if test "x$GUILD" = "x"; then
    AC_MSG_ERROR(['guild' binary not found; please check your Guile installation.])
 fi
 
+GUILE_MODULE_AVAILABLE([have_guile_zlib], [(zlib)])
+if test "x$have_guile_zlib" != "xyes"; then
+  AC_MSG_ERROR([Guile-Zlib not found; please install it first.])
+fi
+
 GUILE_MODULE_AVAILABLE([have_guix_inferior], [(guix inferior)])
 GUILE_MODULE_AVAILABLE([have_guix_channels], [(guix channels)])
 if test "x$have_guix_inferior$have_guix_channels" = "xnono"; then

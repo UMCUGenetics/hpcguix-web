@@ -21,7 +21,7 @@
   #:use-module (guix channels)
   #:use-module (guix ui)
   #:use-module ((guix utils)
-                #:select (location-file with-atomic-file-output))
+                #:select (location-file))
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 atomic)
   #:use-module (ice-9 threads)
@@ -31,6 +31,7 @@
   #:use-module (texinfo html)
   #:use-module (sxml simple)
   #:use-module (json)
+  #:use-module (zlib)
   #:export (current-packages
             maybe-update-package-file))
 
@@ -75,15 +76,22 @@ vocabulary."
   "Atomically update FILE with the a JSON representation of the latest set of
 Guix packages."
   (let* ((inferior (inferior-for-channels channels))
-         (packages (inferior-packages inferior)))
-    (with-atomic-file-output file
+         (packages (inferior-packages inferior))
+         (pivot    (string-append file ".part")))
+    (call-with-output-file pivot
       (lambda (port)
-        (scm->json (list->vector
-                    (filter-map (lambda (package)
-                                  (and (select? package)
-                                       (inferior-package->json package)))
-                                packages))
-                   port)))
+        (call-with-gzip-output-port port
+          (lambda (port)
+            (set-port-encoding! port "UTF-8")
+            (scm->json (list->vector
+                        (filter-map (lambda (package)
+                                      (and (select? package)
+                                           (inferior-package->json package)))
+                                    packages))
+                       port))
+          #:level 9
+          #:buffer-size (expt 2 17))))
+    (rename-file pivot file)
     (atomic-box-set! current-packages
                      (fold (lambda (package table)
                              (vhash-cons (inferior-package-name package)

@@ -92,7 +92,7 @@
                        (lambda (port) (commonmark->sxml port)))) port))))))
 
 (define (request-packages-json-handler request)
-  (let* ((packages-file (string-append %www-cache-root "/packages.json"))
+  (let* ((packages-file (string-append %www-cache-root "/packages.json.gz"))
          (git-cache     (string-append %www-cache-root "/git"))
          (select?       (if (defined? 'site-config)
                             (hpcweb-configuration-package-filter-proc
@@ -125,6 +125,7 @@
       (cond [(string= extension "css")  '(text/css)]
             [(string= extension "js")   '(application/javascript)]
             [(string= extension "json") '(application/javascript)]
+            [(string= extension "json.gz") '(application/javascript)]
             [(string= extension "html") '(text/html)]
             [(string= extension "png")  '(image/png)]
             [(string= extension "svg")  '(image/svg+xml)]
@@ -143,8 +144,9 @@
 
   (let* ((packages-json "/packages.json")
          (full-path (if (string= path packages-json)
-                        (string-append %www-cache-root packages-json)
+                        (string-append %www-cache-root "/packages.json.gz")
                         (string-append %www-root "/" path)))
+         (gzipped?  (string=? path packages-json))
          (file-stat (stat full-path #f))
          (modified  (and file-stat
                          (make-time time-utc
@@ -167,6 +169,9 @@
                                       site-config
                                       '()))))))
           (values `((content-type . ,(response-content-type full-path))
+                    ,@(if gzipped?
+                          `((content-encoding . (gzip)))
+                          '())
                     (last-modified . ,(time-utc->date modified))
                     (cache-control . ((max-age . ,ttl))))
                   (call-with-input-file full-path
