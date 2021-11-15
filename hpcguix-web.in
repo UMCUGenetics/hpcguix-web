@@ -290,13 +290,14 @@
 ;;
 ;; This code runs the web server.
 
-(define (run-web-interface)
+(define (run-web-interface address family port)
   (mkdir-p %www-cache-root)
-  (format #t "The web page is available at  http://127.0.0.1:~a/.~%"
-          %www-listen-port)
+  (info (G_ "web page available at http://~a:~a/~%")
+        (inet-ntop family address) port)
   (run-server request-handler 'http
-              `(#:port ,%www-listen-port
-                #:addr ,INADDR_ANY)))
+              `(#:port ,port
+                #:family ,family
+                #:addr ,address)))
 
 (define program-options
   (list (option '(#\V "version") #f #f
@@ -313,7 +314,9 @@
 
 (define %default-options
   ;; Alist of default option values.
-  '())
+  `((address . ,INADDR_LOOPBACK)
+    (family . ,AF_INET)
+    (port . ,%www-listen-port)))
 
 (define (show-help)
   (display "This is hpcguix-web.")
@@ -335,4 +338,6 @@
         (info (G_ "loaded configuration from ~a~%") config-file)
         (leave (G_ "'site-config' is undefined in ~a~%") config-file)))
 
-  (run-web-interface))
+  (run-web-interface (assoc-ref options 'address)
+                     (assoc-ref options 'family)
+                     (assoc-ref options 'port)))
