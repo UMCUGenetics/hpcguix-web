@@ -43,7 +43,7 @@
                    (th "Version")
                    (th "Synopsis")
                    (th "Module")
-                   (th (@ (style "width: 250pt")) "Homepage")))))
+                   (th (@ (style "width: 250pt")) "Home page")))))
      (script (@ (type "text/javascript")
                 (src "/static/hpcguix-web.min.js")) ""))
    #:dependencies '(datatables)))
