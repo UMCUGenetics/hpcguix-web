@@ -210,10 +210,10 @@
 
   (define module
     (and (not welcome?)
-         (resolve-module
-          (module-path '(www pages)
-                       (string-split (substring request-path 1) #\/))
-          #:ensure #f)))
+         (false-if-exception
+          (resolve-interface
+           (module-path '(www pages)
+                        (string-split (substring request-path 1) #\/))))))
 
   (if (or welcome? module)
       (values '((content-type . (text/html))
