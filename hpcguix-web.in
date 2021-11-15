@@ -232,15 +232,9 @@
                              (page-symbol (symbol-append 'page-
                                                          function-symbol))
                              (display-function (module-ref module page-symbol)))
-                        (if (eq? (request-method request) 'POST)
-                            (sxml->xml (display-function request-path
-                                                         (if (defined? 'site-config)
-                                                             site-config '())
-                                                         #:post-data
-                                                         (utf8->string request-body)) port)
-                            (sxml->xml (display-function request-path
-                                                         (if (defined? 'site-config)
-                                                             site-config '())) port)))))))
+                        (sxml->xml (display-function request-path
+                                                     (if (defined? 'site-config)
+                                                         site-config '())) port))))))
       (respond-404 request)))
 
 
