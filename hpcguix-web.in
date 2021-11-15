@@ -213,11 +213,11 @@
 
   (define module
     (and (not welcome?)
-         (false-if-exception
-          (resolve-interface
-           `(www pages
-                 ,@(map string->symbol
-                        (string-tokenize request-path %not-slash)))))))
+         (match (string-tokenize request-path %not-slash)
+           ((token)
+            (false-if-exception
+             (resolve-interface `(www pages ,(string->symbol token)))))
+           (_ #f))))
 
   (if (or welcome? module)
       (values '((content-type . (text/html))
