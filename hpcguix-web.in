@@ -26,15 +26,18 @@
              (hpcweb-configuration)
              (gnu packages)
              (guix git)
+             (guix diagnostics)
+             (guix i18n)
+             (guix scripts)
              ((guix channels) #:select (%default-channels))
              ((guix build utils) #:select (mkdir-p))
-             (ice-9 getopt-long)
              (ice-9 match)
              (json)
              (rnrs bytevectors)
              (rnrs io ports)
              (srfi srfi-1)
              (srfi srfi-19)
+             (srfi srfi-37)
              (sxml simple)
              (web request)
              (web response)
@@ -296,9 +299,21 @@
                 #:addr ,INADDR_ANY)))
 
 (define program-options
-  '((version (single-char #\v) (value #f))
-    (help    (single-char #\h) (value #f))
-    (config  (single-char #\c) (value #t))))
+  (list (option '(#\V "version") #f #f
+                (lambda _
+                  (show-version)
+                  (exit 0)))
+        (option '(#\h "help") #f #f
+                (lambda _
+                  (show-help)
+                  (exit 0)))
+        (option '(#\c "config") #t #f
+                (lambda (opt name arg result)
+                  (alist-cons 'configuration-file arg result)))))
+
+(define %default-options
+  ;; Alist of default option values.
+  '())
 
 (define (show-help)
   (display "This is hpcguix-web.")
@@ -310,17 +325,14 @@
   (display "  --config=ARG   Load a site-specific configuration from ARG.")
   (newline))
 
-(let* ((options (getopt-long (command-line) program-options))
-       (config-file (option-ref options 'config #f)))
-  (cond ((option-ref options 'help #f)
-         (show-help))
-        ((option-ref options 'version #f)
-         (show-version))
-        (config-file
-         (load config-file)
-         (if (defined? 'site-config)
-             (format #t "Loaded configuration from ~a~%" config-file)
-             (format #t "Please define 'site-config in ~a." config-file))
-         (run-web-interface))
-        (else
-         (run-web-interface))))
+(let* ((options (parse-command-line (cdr (command-line)) program-options
+                                    (list %default-options)
+                                    #:build-options? #f))
+       (config-file (assoc-ref options 'configuration-file)))
+  (when config-file
+    (load config-file)
+    (if (defined? 'site-config)
+        (info (G_ "loaded configuration from ~a~%") config-file)
+        (leave (G_ "'site-config' is undefined in ~a~%") config-file)))
+
+  (run-web-interface))
