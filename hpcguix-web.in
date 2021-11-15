@@ -28,6 +28,7 @@
              (guix git)
              (guix diagnostics)
              (guix i18n)
+             ((guix ui) #:select (string->number*))
              (guix scripts)
              ((guix channels) #:select (%default-channels))
              ((guix build utils) #:select (mkdir-p))
@@ -308,6 +309,21 @@
                 (lambda _
                   (show-help)
                   (exit 0)))
+
+        (option '(#\p "port") #t #f
+                (lambda (opt name arg result)
+                  (alist-cons 'port (string->number* arg) result)))
+        (option '("listen") #t #f
+                (lambda (opt name arg result)
+                  (let ((family (assoc-ref result 'family)))
+                    (alist-cons 'address (inet-pton family arg) result))))
+        (option '(#\4) #f #f
+                (lambda (opt name arg result)
+                  (alist-cons 'family AF_INET result)))
+        (option '(#\6) #f #f
+                (lambda (opt name arg result)
+                  (alist-cons 'family AF_INET6 result)))
+
         (option '(#\c "config") #t #f
                 (lambda (opt name arg result)
                   (alist-cons 'configuration-file arg result)))))
@@ -324,6 +340,15 @@
   (display "  --help         Show this message.")
   (newline)
   (display "  --version      Show versioning information.")
+  (newline)
+  (newline)
+  (display "  --listen=ADDR  Listen to ADDR instead of localhost.")
+  (newline)
+  (display "  -4             Interpret ADDR as an IPv4 address.")
+  (newline)
+  (display "  -6             Interpret ADDR as an IPv6 address.")
+  (newline)
+  (display "  --port=PORT    Listen on PORT, a TCP port number.")
   (newline)
   (display "  --config=ARG   Load a site-specific configuration from ARG.")
   (newline))
