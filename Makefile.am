@@ -101,6 +101,8 @@ hpcguix-web: hpcguix-web.in
 	$(SED) -e 's,@''guilemoduledir''@\(.*\)%load-path,$(abs_top_srcdir)\1%load-path,g' \
 	       -e 's,@''guileobjectdir''@\(.*\)%load-compiled-path,$(abs_top_builddir)\1%load-compiled-path,g' \
 	       -e 's,@''GUILE''@,$(GUILE),g' \
+	       -e 's,@''PACKAGE_NAME''@,$(PACKAGE_NAME),g' \
+	       -e 's,@''PACKAGE_VERSION''@,$(PACKAGE_VERSION),g' \
 	       < $< > $@.tmp
 	chmod +x $@.tmp
 	mv $@.tmp $@

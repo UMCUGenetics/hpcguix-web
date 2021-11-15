@@ -353,6 +353,9 @@
   (display "  --config=ARG   Load a site-specific configuration from ARG.")
   (newline))
 
+(define (show-version)
+  (display "@PACKAGE_NAME@ @PACKAGE_VERSION@\n"))
+
 (let* ((options (parse-command-line (cdr (command-line)) program-options
                                     (list %default-options)
                                     #:build-options? #f))
