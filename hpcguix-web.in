@@ -215,8 +215,9 @@
     (and (not welcome?)
          (false-if-exception
           (resolve-interface
-           (module-path '(www pages)
-                        (string-tokenize request-path %not-slash))))))
+           `(www pages
+                 ,@(map string->symbol
+                        (string-tokenize request-path %not-slash)))))))
 
   (if (or welcome? module)
       (values '((content-type . (text/html))
