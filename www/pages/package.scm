@@ -122,8 +122,11 @@ package."
 (define (page-package request-path site-config)
   (match (string-tokenize request-path %not-slash)
     (("package" name)
-     (let ((packages (vhash-fold* cons '() name
-                                  (atomic-box-ref current-packages))))
+     (let ((packages (sort (vhash-fold* cons '() name
+                                        (atomic-box-ref current-packages))
+                           (lambda (package1 package2)
+                             (version>? (inferior-package-version package1)
+                                        (inferior-package-version package2))))))
        (if (null? packages)
            (page-root-template "Oops!" request-path site-config
                                `((h2 "Uh-oh...")
