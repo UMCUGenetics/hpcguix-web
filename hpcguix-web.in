@@ -203,6 +203,9 @@
                                            site-config
                                            '())) port)))))
 
+(define %not-slash
+  (char-set-complement (char-set #\/)))
+
 (define (request-scheme-page-handler request request-body request-path)
   (define welcome?
     ;; Should we land on the welcome page?
@@ -213,7 +216,7 @@
          (false-if-exception
           (resolve-interface
            (module-path '(www pages)
-                        (string-split (substring request-path 1) #\/))))))
+                        (string-tokenize request-path %not-slash))))))
 
   (if (or welcome? module)
       (values '((content-type . (text/html))
