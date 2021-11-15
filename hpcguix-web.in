@@ -348,7 +348,7 @@
   (newline)
   (display "  -6             Interpret ADDR as an IPv6 address.")
   (newline)
-  (display "  --port=PORT    Listen on PORT, a TCP port number.")
+  (display "  -p, --port=PORT Listen on PORT, a TCP port number.")
   (newline)
   (display "  --config=ARG   Load a site-specific configuration from ARG.")
   (newline))
