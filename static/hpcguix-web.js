@@ -54,6 +54,8 @@ var hpcguix = (function () {
                   visible: false
                 },
                 { data: 'homepage',
+		  visible: false, // not that useful
+		  width: '20%',
                   mRender: function (data, type, full) {
                       return '<a href="' + data + '">' + data + '</a>';
                   }
