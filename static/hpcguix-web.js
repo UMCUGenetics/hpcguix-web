@@ -47,7 +47,8 @@ var hpcguix = (function () {
                       return '<a href="package/' + data + '">' + data + '</a>';
                   }
                 },
-                { data: 'version' },
+                { data: 'version',
+		  width: '10%' },
                 { data: 'synopsis' },
                 { data: 'module',
                   visible: false
