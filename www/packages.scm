@@ -33,6 +33,7 @@
   #:use-module (json)
   #:use-module (zlib)
   #:export (current-packages
+            inferior-package-channels
             maybe-update-package-file))
 
 (define current-packages
@@ -54,6 +55,10 @@ vocabulary."
   (with-fluids ((%default-port-encoding "UTF-8"))
     (and=> (inferior-package-synopsis package)
            (compose stexi->shtml texi-fragment->stexi))))
+
+(define (inferior-package-channels package)
+  "Return the list of channels PACKAGE, an inferior package, comes from."
+  (map sexp->channel (inferior-package-provenance package)))
 
 (define (inferior-package->json package)
   "Return meta-data for PACKAGE as an alist that can be converted to JSON."

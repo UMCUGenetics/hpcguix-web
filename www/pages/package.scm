@@ -43,10 +43,6 @@ vocabulary."
     (and=> (inferior-package-description package)
            (compose stexi->shtml texi-fragment->stexi))))
 
-(define (inferior-package-channels package)
-  "Return the list of channels PACKAGE, an inferior package, comes from."
-  (map sexp->channel (inferior-package-provenance package)))
-
 (define %vcs-web-views
   ;; Hard-coded list of host names and corresponding web view URL templates.
   (let ((labhub-url (lambda (repository-url commit location)
