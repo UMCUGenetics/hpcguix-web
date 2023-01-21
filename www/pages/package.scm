@@ -123,10 +123,12 @@ package."
             site-config
             `((h2 "Package details of " (code (@ (class "h2-title")) ,name))
               (p ,(package-description-shtml (car packages)))
-              (p "There " ,(if (> (length packages) 1) "are " "is ")
-                 ,(length packages) " version"
-                 ,(if (> (length packages) 1) "s" "")
-                 " available for this package.")
+              ,@(match packages
+                  ((one)
+                   '())
+                  ((one two ...)
+                   `((p "There are " ,(length packages) " versions"
+                        " available for this package."))))
               (hr)
 
               ,(map
