@@ -24,6 +24,7 @@ SOURCES =                                               \
   www/util.scm                                          \
   www/packages.scm					\
   www/pages.scm                                         \
+  www/pages/channel.scm                                 \
   www/pages/javascript.scm                              \
   www/pages/package.scm                                 \
   www/pages/error.scm                                   \

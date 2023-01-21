@@ -50,6 +50,7 @@
              (www pages error)
              (www pages javascript)
              (www pages package)
+             (www pages channel)
              (www pages welcome)
              (www pages)
              (www util))
@@ -183,15 +184,24 @@
           (else
            (send-file)))))
 
-(define (request-package-handler config request-path)
-  ;; Note: Use Content-Security-Policy to protect against "clickjacking"
-  ;; attacks: <https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet>.
-  (values '((content-type . (text/html))
-            (content-security-policy . "frame-ancestors 'none';"))
-          (call-with-output-string
-            (lambda (port)
-              (sxml->xml (page-package request-path config)
-                         port)))))
+(define (request-shtml-page-handler produce-page)
+  "Return a procedure to handle requests for HTML page.  PRODUCE-PAGE is the
+procedure called to produce the page SXML."
+  (lambda (config path)
+    ;; Note: Use Content-Security-Policy to protect against "clickjacking"
+    ;; attacks: <https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet>.
+    (values '((content-type . (text/html))
+              (content-security-policy . "frame-ancestors 'none';"))
+            (call-with-output-string
+              (lambda (port)
+                (sxml->xml (produce-page path config) port))))))
+
+(define request-package-handler
+  (request-shtml-page-handler page-package))
+
+(define request-channel-handler
+  (request-shtml-page-handler page-channel))
+
 
 (define %not-slash
   (char-set-complement (char-set #\/)))
@@ -257,6 +267,8 @@
             (request-file-handler config request))
            ((string-prefix? "/package/" request-path)
             (request-package-handler config request-path))
+           ((string-prefix? "/channel/" request-path)
+            (request-channel-handler config request-path))
            ((and (not (string= "/" request-path))
                  (access? (string-append %www-markdown-root "/"
                                          request-path ".md") F_OK))

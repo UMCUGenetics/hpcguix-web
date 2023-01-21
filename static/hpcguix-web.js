@@ -53,7 +53,7 @@ var hpcguix = (function () {
 		{ data: 'channel',
 		  width: '10%',
 		  mRender: function (data, type, full) {
-		      return '<a href="' + data.url + '">' + data.name + '</a>';
+		      return '<a href="channel/' + data.name + '">' + data.name + '</a>';
 		  }
 		},
                 { data: 'synopsis',
