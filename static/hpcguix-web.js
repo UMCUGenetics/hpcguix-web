@@ -37,6 +37,7 @@ var hpcguix = (function () {
             sDom: 'lrtip',
             data: packages,
             processing: true,
+	    autoWidth: false,
             createdRow: function (row, data, index) {
                 $('#stand-by').hide();
                 $('#packages-table').show();
@@ -50,14 +51,13 @@ var hpcguix = (function () {
                 { data: 'version',
 		  width: '10%' },
 		{ data: 'channel',
+		  width: '10%',
 		  mRender: function (data, type, full) {
 		      return '<a href="' + data.url + '">' + data.name + '</a>';
 		  }
 		},
-                { data: 'synopsis' },
-                { data: 'module',
-                  visible: false
-                },
+                { data: 'synopsis',
+		  width: '60%' },
                 { data: 'homepage',
 		  visible: false, // not that useful
 		  width: '20%',
