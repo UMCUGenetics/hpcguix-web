@@ -1,4 +1,4 @@
-;;; Copyright © 2017, 2018, 2019, 2020, 2021 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017-2021, 2023 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2016, 2017 Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2018 Pierre-Antoine Rouby <contact@parouby.fr>
 ;;;
@@ -71,6 +71,12 @@ vocabulary."
         (string-replace-substring url "/git/" "/cgit/")
         url)))
 
+(define (channel->json channel)
+  "Return identifying information about CHANNEL suitable for JSON
+serialization."
+  `((name   . ,(channel-name channel))
+    (url    . ,(channel-home-page-url channel))))
+
 (define (inferior-package->json package)
   "Return meta-data for PACKAGE as an alist that can be converted to JSON."
   `(("name"     ,@(inferior-package-name package))
@@ -82,6 +88,11 @@ vocabulary."
                                    (tree tree))
                                  port))))
     ("homepage" ,@(inferior-package-home-page package))
+    ("channel"  ,@(and=> (match (inferior-package-channels package)
+                           (() #f)
+                           ((guix) guix)
+                           (lst (find (negate guix-channel?) lst)))
+                         channel->json))
     ("module"   ,@(string-drop-right
 		   (last (string-split (location-file
 					(inferior-package-location package))

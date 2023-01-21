@@ -49,6 +49,11 @@ var hpcguix = (function () {
                 },
                 { data: 'version',
 		  width: '10%' },
+		{ data: 'channel',
+		  mRender: function (data, type, full) {
+		      return '<a href="' + data.url + '">' + data.name + '</a>';
+		  }
+		},
                 { data: 'synopsis' },
                 { data: 'module',
                   visible: false

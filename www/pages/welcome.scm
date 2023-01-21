@@ -41,6 +41,7 @@
                   (tr
                    (th "Name")
                    (th "Version")
+                   (th "Channel")
                    (th "Synopsis")
                    (th "Module")
                    (th (@ (style "width: 250pt")) "Home page")))))
