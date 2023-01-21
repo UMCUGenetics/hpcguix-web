@@ -24,7 +24,9 @@
    `((h2 "Find software packages")
      (p (strong "ProTip:") " The search field takes regular expressions."
         "  For example, when searching for R, " (code "^r") " provides far"
-        " better results than “just” " (code "r") ".")
+        " better results than “just” " (code "r") ".  "
+        "You can also restrict results to a specific channel—e.g., "
+        (code "channel:guix-science") ".")
      (p "")
      (form
       (input (@ (type "search")
