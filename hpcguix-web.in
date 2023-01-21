@@ -3,7 +3,7 @@
 !#
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2017  Ricardo Wurmus <rekado@elephly.net>
-;;; Copyright © 2017, 2018  Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017, 2018, 2023  Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -38,6 +38,7 @@
              (rnrs io ports)
              (srfi srfi-1)
              (srfi srfi-19)
+             (srfi srfi-26)
              (srfi srfi-37)
              (sxml simple)
              (web request)
@@ -64,7 +65,7 @@
 ;; In this section, the different handlers are implemented.
 ;;
 
-(define (respond-404 request)
+(define (respond-404 config request)
   "Return 404 with a pretty HTML page."
   (values (build-response #:code 404
                           #:headers '((content-type . (text/html))))
@@ -72,11 +73,9 @@
             (lambda _
               (sxml->xml
                (page-error-404 (uri-path (request-uri request))
-                               (if (defined? 'site-config)
-                                   site-config
-                                   '())))))))
+                               config))))))
 
-(define (request-markdown-handler request-path)
+(define (request-markdown-handler config request-path)
   (let ((file (string-append %www-markdown-root "/" request-path ".md")))
     (values
      '((content-type . (text/html)))
@@ -89,26 +88,17 @@
                       (string-replace-occurrence
                        (basename request-path) #\- #\ ))
                      request-path
-                     (if (defined? 'site-config)
-                         site-config
-                         '())
+                     config
                      (call-with-input-file file
-                       (lambda (port) (commonmark->sxml port)))) port))))))
+                       (lambda (port) (commonmark->sxml port))))
+                    port))))))
 
-(define (request-packages-json-handler request)
+(define (request-packages-json-handler config request)
   (let* ((packages-file (string-append %www-cache-root "/packages.json.gz"))
          (git-cache     (string-append %www-cache-root "/git"))
-         (select?       (if (defined? 'site-config)
-                            (hpcweb-configuration-package-filter-proc
-                             site-config)
-                            (const #t)))
-         (channels      (if (defined? 'site-config)
-                            (hpcweb-configuration-channels site-config)
-                            %default-channels))
-         (expiration    (if (defined? 'site-config)
-                            (hpcweb-configuration-package-list-expiration
-                             site-config)
-                            (* 12 3600))))        ;expire after 12h
+         (select?       (hpcweb-configuration-package-filter-proc config))
+         (channels      (hpcweb-configuration-channels config))
+         (expiration    (hpcweb-configuration-package-list-expiration config)))
     ;; Write the packages JSON to disk to speed up the page load.
     ;; This caching mechanism prevents new packages from propagating
     ;; into the search.  For this, we can manually create a file
@@ -118,9 +108,9 @@
       (maybe-update-package-file packages-file channels
                                  #:expiration expiration
                                  #:select? select?))
-    (request-file-handler request)))
+    (request-file-handler config request)))
 
-(define (request-file-handler request)
+(define (request-file-handler config request)
   "This handler takes data from a file and sends that as a response."
 
   (define (response-content-type path)
@@ -169,9 +159,7 @@
                     (lambda _
                       (sxml->xml (page-error-filesize
                                   path
-                                  (if (defined? 'site-config)
-                                      site-config
-                                      '()))))))
+                                  config)))))
           (values `((content-type . ,(response-content-type full-path))
                     ,@(if gzipped?
                           `((content-encoding . (gzip)))
@@ -182,7 +170,7 @@
                     get-bytevector-all*))))
 
     (cond ((not file-stat)
-           (respond-404 request))
+           (respond-404 config request))
           ((assoc-ref (request-headers request) 'if-modified-since)
            =>
            (lambda (client-date)
@@ -195,22 +183,21 @@
           (else
            (send-file)))))
 
-(define (request-package-handler request-path)
+(define (request-package-handler config request-path)
   ;; Note: Use Content-Security-Policy to protect against "clickjacking"
   ;; attacks: <https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet>.
   (values '((content-type . (text/html))
             (content-security-policy . "frame-ancestors 'none';"))
           (call-with-output-string
             (lambda (port)
-              (sxml->xml (page-package request-path
-                                       (if (defined? 'site-config)
-                                           site-config
-                                           '())) port)))))
+              (sxml->xml (page-package request-path config)
+                         port)))))
 
 (define %not-slash
   (char-set-complement (char-set #\/)))
 
-(define (request-scheme-page-handler request request-body request-path)
+(define (request-scheme-page-handler config request
+                                     request-body request-path)
   (define welcome?
     ;; Should we land on the welcome page?
     (< (string-length request-path) 2))
@@ -231,8 +218,7 @@
                   (set-port-encoding! port "utf8")
                   (format port "<!DOCTYPE html>~%")
                   (if welcome?
-                      (sxml->xml (page-welcome "/" (if (defined? 'site-config)
-                                                       site-config '())) port)
+                      (sxml->xml (page-welcome "/" config) port)
                       (let* ((function-symbol (string->symbol
                                                (string-map
                                                 (lambda (x) (if (eq? x #\/) #\- x))
@@ -240,10 +226,9 @@
                              (page-symbol (symbol-append 'page-
                                                          function-symbol))
                              (display-function (module-ref module page-symbol)))
-                        (sxml->xml (display-function request-path
-                                                     (if (defined? 'site-config)
-                                                         site-config '())) port))))))
-      (respond-404 request)))
+                        (sxml->xml (display-function request-path config)
+                                   port))))))
+      (respond-404 config request)))
 
 
 ;; ----------------------------------------------------------------------------
@@ -260,29 +245,30 @@
 ;; Feel free to add your own handler whenever that is necessary.
 ;;
 ;; ----------------------------------------------------------------------------
-(define (request-handler request request-body)
+(define (request-handler config request request-body)
   (define request-path
     (uri-path (request-uri request)))
 
   (match (request-method request)
     ('GET
      (cond ((string= request-path "/packages.json")
-            (request-packages-json-handler request))
+            (request-packages-json-handler config request))
            ((and (> (string-length request-path) 7)
                  (string= (string-take request-path 8) "/static/"))
-            (request-file-handler request))
+            (request-file-handler config request))
            ((and (> (string-length request-path) 8)
                  (string= (string-take request-path 9) "/package/"))
-            (request-package-handler request-path))
+            (request-package-handler config request-path))
            ((and (not (string= "/" request-path))
                  (access? (string-append %www-markdown-root "/"
                                          request-path ".md") F_OK))
-            (request-markdown-handler request-path))
+            (request-markdown-handler config request-path))
            (else
-            (request-scheme-page-handler request request-body request-path))))
+            (request-scheme-page-handler config request
+                                         request-body request-path))))
     (_
      ;; Nothing but GET is supported.
-     (respond-404 request))))
+     (respond-404 config request))))
 
 
 ;; ----------------------------------------------------------------------------
@@ -291,11 +277,11 @@
 ;;
 ;; This code runs the web server.
 
-(define (run-web-interface address family port)
+(define (run-web-interface config address family port)
   (mkdir-p %www-cache-root)
   (info (G_ "web page available at http://~a:~a/~%")
         (inet-ntop family address) port)
-  (run-server request-handler 'http
+  (run-server (cut request-handler config <...>) 'http
               `(#:port ,port
                 #:family ,family
                 #:addr ,address)))
@@ -356,16 +342,34 @@
 (define (show-version)
   (display "@PACKAGE_NAME@ @PACKAGE_VERSION@\n"))
 
+(define (load-in-user-module file)
+  (let ((module (make-fresh-user-module)))
+    (set-module-name! module '(hpcguix-web-user))
+    (module-use-interfaces! module
+                            (list (resolve-interface '(hpcweb-configuration))))
+    (load file)))
+
+(define (load-configuration file)
+  "Load configuration from FILE and return it.  Exit with an error message
+upon failure."
+  (catch 'system-error
+    (lambda ()
+      (match (load-in-user-module file)
+        ((? hpcweb-configuration? config) config)
+        (_
+         (leave (G_ "'~a' did not return an 'hpcweb-configuration' record~%")
+                file))))
+    (lambda args
+      (leave (G_ "~a: failed to load configuration: ~a~%")
+             file (strerror (system-error-errno args))))))
+
 (let* ((options (parse-command-line (cdr (command-line)) program-options
                                     (list %default-options)
                                     #:build-options? #f))
-       (config-file (assoc-ref options 'configuration-file)))
-  (when config-file
-    (load config-file)
-    (if (defined? 'site-config)
-        (info (G_ "loaded configuration from ~a~%") config-file)
-        (leave (G_ "'site-config' is undefined in ~a~%") config-file)))
-
-  (run-web-interface (assoc-ref options 'address)
+       (config-file (assoc-ref options 'configuration-file))
+       (config      (if config-file
+                        (load-configuration config-file)
+                        (hpcweb-configuration))))
+  (run-web-interface config (assoc-ref options 'address)
                      (assoc-ref options 'family)
                      (assoc-ref options 'port)))
