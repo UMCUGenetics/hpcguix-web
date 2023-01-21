@@ -13,7 +13,11 @@ $(guile_install_go_files): install-nobase_modDATA
 
 CLEANFILES = $(GOBJECTS)
 EXTRA_DIST = $(SOURCES) $(NOCOMP_SOURCES)
-GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
+GUILE_WARNINGS =					\
+  -Wunbound-variable -Warity-mismatch -Wformat		\
+  -Wmacro-use-before-definition -Wduplicate-case-datum	\
+  -Wbad-case-datum -Wshadowed-toplevel
+
 SUFFIXES = .scm .go
 
 AM_V_GUILEC = $(AM_V_GUILEC_$(V))
