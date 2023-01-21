@@ -84,7 +84,7 @@
       (div (@ (id "footer-box")
               (class "width-control"))
            (p "Made with λ by the GNU Guix community — "
-              "Copyright © 2017–2021 The hpcguix-web Authors. "
+              "Copyright © 2017–2023 The hpcguix-web Authors. "
               (a (@ (href "https://github.com/UMCUGenetics/hpcguix-web"))
                  "Source code of this page") ".")
            (p (a (@ (href "/javascript")
