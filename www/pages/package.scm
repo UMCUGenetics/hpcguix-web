@@ -75,15 +75,6 @@ vocabulary."
            ((_ template)
             (template url (channel-commit channel) location))))))
 
-(define (channel-home-page-url channel)
-  "Return the home page of CHANNEL."
-  (let* ((url  (channel-url channel))
-         (uri  (string->uri url))
-         (host (and uri (uri-host uri))))
-    (if (and host (string=? host "git.savannah.gnu.org")) ;the only exception
-        (string-replace-substring url "/git/" "/cgit/")
-        url)))
-
 (define (inferior-package-location-shtml package)
   "Return SHTML denoting the source code location of PACKAGE, an inferior
 package."

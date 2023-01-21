@@ -21,7 +21,7 @@
   #:use-module (guix channels)
   #:use-module (guix ui)
   #:use-module ((guix utils)
-                #:select (location-file))
+                #:select (location-file string-replace-substring))
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 atomic)
   #:use-module (ice-9 threads)
@@ -30,10 +30,12 @@
   #:use-module (texinfo)
   #:use-module (texinfo html)
   #:use-module (sxml simple)
+  #:use-module (web uri)
   #:use-module (json)
   #:use-module (zlib)
   #:export (current-packages
             inferior-package-channels
+            channel-home-page-url
             maybe-update-package-file))
 
 (define current-packages
@@ -59,6 +61,15 @@ vocabulary."
 (define (inferior-package-channels package)
   "Return the list of channels PACKAGE, an inferior package, comes from."
   (map sexp->channel (inferior-package-provenance package)))
+
+(define (channel-home-page-url channel)
+  "Return the home page of CHANNEL."
+  (let* ((url  (channel-url channel))
+         (uri  (string->uri url))
+         (host (and uri (uri-host uri))))
+    (if (and host (string=? host "git.savannah.gnu.org")) ;the only exception
+        (string-replace-substring url "/git/" "/cgit/")
+        url)))
 
 (define (inferior-package->json package)
   "Return meta-data for PACKAGE as an alist that can be converted to JSON."
