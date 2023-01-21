@@ -251,13 +251,11 @@
 
   (match (request-method request)
     ('GET
-     (cond ((string= request-path "/packages.json")
+     (cond ((string=? request-path "/packages.json")
             (request-packages-json-handler config request))
-           ((and (> (string-length request-path) 7)
-                 (string= (string-take request-path 8) "/static/"))
+           ((string-prefix? "/static/" request-path)
             (request-file-handler config request))
-           ((and (> (string-length request-path) 8)
-                 (string= (string-take request-path 9) "/package/"))
+           ((string-prefix? "/package/" request-path)
             (request-package-handler config request-path))
            ((and (not (string= "/" request-path))
                  (access? (string-append %www-markdown-root "/"
