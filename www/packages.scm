@@ -92,12 +92,7 @@ serialization."
                            (() #f)
                            ((guix) guix)
                            (lst (find (negate guix-channel?) lst)))
-                         channel->json))
-    ("module"   ,@(string-drop-right
-		   (last (string-split (location-file
-					(inferior-package-location package))
-				       #\/))
-		   4))))
+                         channel->json))))
 
 (define* (update-package-file file channels #:key (select? (const #t)))
   "Atomically update FILE with the a JSON representation of the latest set of
