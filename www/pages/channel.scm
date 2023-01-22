@@ -38,20 +38,29 @@
               "and commands.  It is provided by default and "
               (a (@ (href ,(manual-url "Channels")))
                  "defined")
-              " as follows:")
+              " as follows:"
+
+              (pre (code (@ (class "scheme"))
+                         ,(call-with-output-string
+                            (lambda (port)
+                              (pretty-print (channel->code channel) port))))))
             `("The " (code ,(channel-name channel)) " channel can be obtained "
-              "by "
+              "by writing a "
               (a (@ (href ,(manual-url "Specifying-Additional-Channels")))
-                 "adding the following definition")
+                 "snippet")
+              " along these lines"
               " to " (code "~/.config/guix/channels.scm") " and then running "
               (a (@ (href ,(manual-url "Invoking-guix-pull")))
                  (code "guix pull"))
-              ":"))
+              ":"
 
-      (pre (code (@ (class "scheme"))
-                 ,(call-with-output-string
-                    (lambda (port)
-                      (pretty-print (channel->code channel) port)))))
+              (pre (code (@ (class "scheme"))
+                         ,(call-with-output-string
+                            (lambda (port)
+                              (pretty-print `(append (list
+                                                      ,(channel->code channel))
+                                                     %default-channels)
+                                            port)))))))
 
       "You can also " (a (@ (href ,(channel-home-page-url channel)))
                          "browse its source repository")
