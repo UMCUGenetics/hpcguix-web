@@ -96,7 +96,9 @@ package."
                     body))
          ,@(if channel
                `(" ("
-                 (a (@ (href ,(channel-home-page-url channel)))
+                 (a (@ (href ,(string-append "/channel/"
+                                             (symbol->string
+                                              (channel-name channel)))))
                     ,(channel-name channel))
                  " channel)")
                '()))))
