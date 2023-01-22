@@ -46,7 +46,8 @@
    `(("guix" ,guix)
      ("guile" ,@(assoc-ref (package-inputs guix) "guile"))
      ("guile-json" ,guile-json-4)
-     ("guile-commonmark" ,guile-commonmark)))
+     ("guile-commonmark" ,guile-commonmark)
+     ("guile-syntax-highlighting" ,guile-syntax-highlighting)))
   (home-page "https://github.com/UMCUGenetics/hpcguix-web")
   (synopsis "Web interface for cluster deployments of Guix")
   (description "This package provides a web interface to the list of

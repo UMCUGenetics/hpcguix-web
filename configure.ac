@@ -32,6 +32,11 @@ if test "x$have_guile_zlib" != "xyes"; then
   AC_MSG_ERROR([Guile-Zlib not found; please install it first.])
 fi
 
+GUILE_MODULE_AVAILABLE([have_syntax_highlight], [(syntax-highlight)])
+if test "x$have_syntax_highlight" != "xyes"; then
+  AC_MSG_ERROR([Syntax-Highlight not found; please install it first.])
+fi
+
 GUILE_MODULE_AVAILABLE([have_guix_inferior], [(guix inferior)])
 GUILE_MODULE_AVAILABLE([have_guix_channels], [(guix channels)])
 if test "x$have_guix_inferior$have_guix_channels" = "xnono"; then

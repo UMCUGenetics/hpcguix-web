@@ -20,6 +20,10 @@
   #:autoload   (www pages error) (page-error-404)
   #:autoload   (www packages) (channel-home-page-url)
   #:use-module (guix channels)
+  #:autoload   (syntax-highlight) (highlights->sxml highlight)
+  #:autoload   (syntax-highlight scheme) (make-scheme-lexer
+                                          %default-special-prefixes
+                                          %default-special-symbols)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 match)
   #:use-module (ice-9 pretty-print)
@@ -31,6 +35,19 @@
   (string-append "https://guix.gnu.org/manual/en/html_node/"
                  page ".html"))
 
+(define %scheme-lexer
+  (delay (make-scheme-lexer (cons "channel" %default-special-symbols)
+                            %default-special-prefixes)))
+
+(define (scheme->sxml code)
+  "Take the sexp CODE, format it, syntax-highlight it, and return the result as
+SXML."
+  (let ((str (call-with-output-string
+               (lambda (port)
+                 (pretty-print code port)))))
+    (highlights->sxml
+     (highlight (force %scheme-lexer) str))))
+
 (define (channel-description-shtml channel)
   `(p ,@(if (guix-channel? channel)
             `("The " (code "guix") " channel is the main Guix channel, "
@@ -41,9 +58,7 @@
               " as follows:"
 
               (pre (code (@ (class "scheme"))
-                         ,(call-with-output-string
-                            (lambda (port)
-                              (pretty-print (channel->code channel) port))))))
+                         ,(scheme->sxml (channel->code channel)))))
             `("The " (code ,(channel-name channel)) " channel can be obtained "
               "by writing a "
               (a (@ (href ,(manual-url "Specifying-Additional-Channels")))
@@ -55,12 +70,9 @@
               ":"
 
               (pre (code (@ (class "scheme"))
-                         ,(call-with-output-string
-                            (lambda (port)
-                              (pretty-print `(append (list
-                                                      ,(channel->code channel))
-                                                     %default-channels)
-                                            port)))))))
+                         ,(scheme->sxml
+                           `(append (list ,(channel->code channel))
+                                    %default-channels))))))
 
       "You can also " (a (@ (href ,(channel-home-page-url channel)))
                          "browse its source repository")
