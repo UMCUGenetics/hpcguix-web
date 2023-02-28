@@ -67,25 +67,32 @@ var hpcguix = (function () {
                 }
             ]});
 
-        // Filter the table on each key press.
-        $('#search-field').on('keyup', function() {
-            var columns = dt.settings().init().columns,
-                query = parseQuery(this.value, columns),
-                global = query[0],
-                perColumn = query[1];
+        // Filter the table on each input change. Debounce for 200ms.
+        var debounce = null,
+            debounceTimeout = 500;
+        $('#search-field').on('input', function(e) {
+            if (debounce !== null) {
+                clearTimeout(debounce);
+            }
+            debounce = setTimeout(function() {
+                var columns = dt.settings().init().columns,
+                    query = parseQuery(e.target.value, columns),
+                    global = query[0],
+                    perColumn = query[1];
 
-            // Set (or reset) per-column filters.
-            dt.columns().every(function (index) {
-                var name = columns[index].data;
-                if (perColumn.hasOwnProperty(name)) {
-                    dt.column(index).search(makeRegex(perColumn[name]), true, false);
-                } else {
-                    dt.column(index).search('', true, false);
-                }
-            });
+                // Set (or reset) per-column filters.
+                dt.columns().every(function (index) {
+                    var name = columns[index].data;
+                    if (perColumn.hasOwnProperty(name)) {
+                        dt.column(index).search(makeRegex(perColumn[name]), true, false);
+                    } else {
+                        dt.column(index).search('', true, false);
+                    }
+                });
 
-            // Set global filter.
-            dt.search(makeRegex(global), true, false).draw();
+                // Set global filter.
+                dt.search(makeRegex(global), true, false).draw();
+            }, debounceTimeout);
         });
 
         $('#search-field').on('keydown', function(event) {
