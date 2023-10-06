@@ -98,11 +98,20 @@ var hpcguix = (function () {
         $('#search-field').on('keydown', function(event) {
             if (event.which == 13) return false;
         });
+
+	// The search field might already have a value: take it into
+	// account.
+	$('#search-field').trigger('keyup');
     }
 
     // Initialize the packages table.
     function init () {
         $('#packages-table').hide();
+
+	// Honor "?q=TERM" URL parameters.
+	var params = new URLSearchParams(document.location.search);
+	$('#search-field').val(params.get("q"));
+
         $.getJSON('/packages.json', feed_table);
     }
 
