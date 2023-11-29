@@ -87,7 +87,6 @@ serialization."
                                    (('div ('p text)) text)
                                    (tree tree))
                                  port))))
-    ("homepage" ,@(inferior-package-home-page package))
     ("channel"  ,@(and=> (match (inferior-package-channels package)
                            (() #f)
                            ((guix) guix)

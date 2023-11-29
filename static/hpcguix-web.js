@@ -57,14 +57,7 @@ var hpcguix = (function () {
 		  }
 		},
                 { data: 'synopsis',
-		  width: '60%' },
-                { data: 'homepage',
-		  visible: false, // not that useful
-		  width: '20%',
-                  mRender: function (data, type, full) {
-                      return '<a href="' + data + '">' + data + '</a>';
-                  }
-                }
+		  width: '60%' }
             ]});
 
         // Filter the table on each input change. Debounce for 200ms.
