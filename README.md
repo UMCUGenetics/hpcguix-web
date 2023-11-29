@@ -11,12 +11,17 @@ can customize it, for instance by specifying the list of *channels* to
 use as the source of packages, or by changing the appearance of package
 pages.
 
-To run it yourself, you need to install Guix and run the following
-commands:
+To run it yourself, you need to install Guix and enter an isolated
+development shell (a container) with:
 
 ```
-# Set up a proper environment and build the source code
-guix shell --pure -Df environment.scm
+guix shell -CPNW
+```
+
+From that shell, run the following commands:
+
+```
+# Build the code.
 autoreconf -vfi
 ./configure
 make

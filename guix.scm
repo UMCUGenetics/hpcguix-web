@@ -1,22 +1,30 @@
 ;;; hpcguix-web - Web interface for Guix
 ;;; Copyright © 2017 Ricardo Wurmus <rekado@elephly.net>
+;;; Copyright © 2023 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This file is part of hpcguix-web.
 ;;;
 ;;; hpcguix-web is free software; see COPYING file for details.
 
 ;;; Run the following command to enter a development environment for
-;;; HPC Guix web:
+;;; hpcguix-web:
 ;;;
-;;;  $ guix environment -l environment.scm
+;;;   guix shell -CPNW
+;;;
+;;; You can also build hpcguix-web itself with:
+;;;
+;;;   guix build -f guix.scm
 
 (use-modules ((guix licenses) #:prefix license:)
              (guix packages)
              (guix download)
              (guix utils)
+             (guix gexp)
+             (guix git-download)
              (guix build-system gnu)
              (gnu packages)
              (gnu packages autotools)
+             (gnu packages certs)
              (gnu packages guile)
              (gnu packages guile-xyz)
              (gnu packages lisp-xyz)
@@ -26,28 +34,34 @@
 (define %version
   (symbol->string (with-input-from-file "VERSION" read)))
 
+(define vcs-file?
+  ;; Return true if the given file is under version control.
+  (or (git-predicate (current-source-directory))
+      (const #t)))                                ;not in a Git checkout
+
 (package
   (name "hpcguix-web")
   (version %version)
-  (source (string-append (getcwd) "/hpcguix-web-" version ".tar.gz"))
+  (source (local-file "." "hpcguix-web-checkout"
+                      #:recursive? #t
+                      #:select? vcs-file?))
   (build-system gnu-build-system)
-  (arguments
-   `(#:phases
-     (modify-phases %standard-phases
-       (add-before 'configure 'autoconf
-         (lambda _
-           (zero? (system* "autoreconf" "-vif")))))))
   (native-inputs
-   `(("autoconf" ,autoconf)
-     ("automake" ,automake)
-     ("uglify-js" ,uglify-js)
-     ("pkg-config" ,pkg-config)))
+   (list autoconf
+         automake
+         uglify-js
+         pkg-config
+
+         ;; NSS certificates are only needed when running hpcguix-web in
+         ;; development environments so it can check out Git repository over
+         ;; HTTPS.
+         nss-certs))
   (inputs
-   `(("guix" ,guix)
-     ("guile" ,@(assoc-ref (package-inputs guix) "guile"))
-     ("guile-json" ,guile-json-4)
-     ("guile-commonmark" ,guile-commonmark)
-     ("guile-syntax-highlighting" ,guile-syntax-highlighting)))
+   (list guix
+         (lookup-package-input guix "guile")
+         guile-json-4
+         guile-commonmark
+         guile-syntax-highlight))
   (home-page "https://github.com/UMCUGenetics/hpcguix-web")
   (synopsis "Web interface for cluster deployments of Guix")
   (description "This package provides a web interface to the list of
