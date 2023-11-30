@@ -190,10 +190,17 @@
   "Return a procedure to handle requests for HTML page.  PRODUCE-PAGE is the
 procedure called to produce the page SXML."
   (lambda (config path)
+    (define ttl
+      ;; Package pages won't change until the package list is rebuilt so add
+      ;; reasonable time-to-live on them.
+      (inexact->exact
+       (quotient (hpcweb-configuration-package-list-expiration config) 2)))
+
     ;; Note: Use Content-Security-Policy to protect against "clickjacking"
     ;; attacks: <https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet>.
-    (values '((content-type . (text/html))
-              (content-security-policy . "frame-ancestors 'none';"))
+    (values `((content-type . (text/html))
+              (content-security-policy . "frame-ancestors 'none';")
+              (cache-control . ((max-age . ,ttl))))
             (call-with-output-string
               (lambda (port)
                 (sxml->xml (produce-page path config) port))))))
