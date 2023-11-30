@@ -116,5 +116,6 @@ install-exec-hook:
 
 # Build 'hpcguix-web' by default.  Compile it so we get warnings.
 all-local: hpcguix-web
-	$(AM_V_GEN)$(GUILD) compile $(GUILD_COMPILE_FLAGS) \
-	  -L "$(top_srcdir)" -L "$(top_builddir)"  hpcguix-web
+	$(AM_V_GEN)$(GUILD) compile $(GUILD_COMPILE_FLAGS)		\
+	  -L "$(top_srcdir)" -L "$(top_builddir)" -o hpcguix-web.go	\
+	  hpcguix-web
