@@ -20,16 +20,16 @@ moddir=@guilemoduledir@
 godir=@guileobjectdir@
 datadir=@datarootdir@
 
-SOURCES =                                               \
-  www/util.scm                                          \
-  www/packages.scm					\
-  www/pages.scm                                         \
-  www/pages/channel.scm                                 \
-  www/pages/javascript.scm                              \
-  www/pages/package.scm                                 \
-  www/pages/error.scm                                   \
-  www/pages/welcome.scm                                 \
-  hpcweb-configuration.scm
+SOURCES =					\
+  modules/www/util.scm				\
+  modules/www/packages.scm			\
+  modules/www/pages.scm				\
+  modules/www/pages/channel.scm			\
+  modules/www/pages/javascript.scm		\
+  modules/www/pages/package.scm			\
+  modules/www/pages/error.scm			\
+  modules/www/pages/welcome.scm			\
+  modules/hpcweb-configuration.scm
 
 SUFFIXES += .js .min.js
 
@@ -71,27 +71,27 @@ nobase_dist_assets_DATA =                               \
 
 EXTRA_DIST +=					\
   hpcguix-web.in				\
-  www/config.scm.in
+  modules/www/config.scm.in
 
 CLEANFILES +=					\
   $(wildcard static/*.min.js)			\
   hpcguix-web					\
-  www/config.scm				\
-  www/config.go
+  modules/www/config.scm			\
+  modules/www/config.go
 
 nobase_nodist_bin_SCRIPTS = hpcguix-web
 
-BUILT_SOURCES = www/config.scm
-nobase_nodist_mod_DATA = www/config.scm
-nobase_nodist_go_DATA = www/config.go
+BUILT_SOURCES = modules/www/config.scm
+nobase_nodist_mod_DATA = modules/www/config.scm
+nobase_nodist_go_DATA = modules/www/config.go
 
 # Flags for 'guild compile'.
 GUILD_COMPILE_FLAGS = -Wformat -Wunbound-variable -Warity-mismatch
 
 # Create the 'www' directory on build path and relocate static file
 # path
-www/config.scm: www/config.scm.in
-	$(MKDIR_P) www
+modules/www/config.scm: modules/www/config.scm.in
+	$(MKDIR_P) modules/www
 	$(SED) -e 's,@''datarootdir''@,$(datadir)/hpcguix-web,g'	\
 	       < $< > $@.tmp
 	mv $@.tmp $@
@@ -117,5 +117,5 @@ install-exec-hook:
 # Build 'hpcguix-web' by default.  Compile it so we get warnings.
 all-local: hpcguix-web
 	$(AM_V_GEN)$(GUILD) compile $(GUILD_COMPILE_FLAGS)		\
-	  -L "$(top_srcdir)" -L "$(top_builddir)" -o hpcguix-web.go	\
-	  hpcguix-web
+	  -L "$(top_srcdir)/modules" -L "$(top_builddir)/modules"	\
+	  -o hpcguix-web.go hpcguix-web
