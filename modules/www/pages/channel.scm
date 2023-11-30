@@ -48,10 +48,16 @@ SXML."
     (highlights->sxml
      (highlight (force %scheme-lexer) str))))
 
-(define (channel-description-shtml channel)
+(define (channel-description-shtml channel config)
+  (define main
+    (hpcweb-configuration-main-page config))
+
   `(p ,@(if (guix-channel? channel)
             `("The " (code "guix") " channel is the main Guix channel, "
-              "providing many packages but also the core Guix modules "
+              "providing "
+              (a (@ (href ,(string-append main "?q=channel:guix")))
+                 "many packages")
+              " but also the core Guix modules "
               "and commands.  It is provided by default and "
               (a (@ (href ,(manual-url "Channels")))
                  "defined")
@@ -59,7 +65,12 @@ SXML."
 
               (pre (code (@ (class "scheme"))
                          ,(scheme->sxml (channel->code channel)))))
-            `("The " (code ,(channel-name channel)) " channel can be obtained "
+            `("The " (code ,(channel-name channel))
+              " channel provides "
+              (a (@ (href ,(string-append main "?q=channel:"
+                                          (channel-name channel))))
+                 "additional packages") ".  "
+              "It can be obtained "
               "by writing a "
               (a (@ (href ,(manual-url "Specifying-Additional-Channels")))
                  "snippet")
@@ -102,7 +113,7 @@ SXML."
             request-path config
             `((h2 "The " (code (@ (class "h2-title")) ,name)
                   " channel")
-              ,(channel-description-shtml channel)))
+              ,(channel-description-shtml channel config)))
            (page-error-404 request-path config))))
     (_                                            ;invalid URI path
      (page-error-404 request-path config))))

@@ -4,6 +4,7 @@
   #:export (hpcweb-configuration
             hpcweb-configuration?
             hpcweb-configuration-title-prefix
+            hpcweb-configuration-main-page
             hpcweb-configuration-guix-command
             hpcweb-configuration-package-filter-proc
             hpcweb-configuration-package-page-extension-proc
@@ -17,6 +18,11 @@
 
   (title-prefix                 hpcweb-configuration-title-prefix
                                 (default "hpcguix | "))
+
+  ;; Path of the main page/welcome page.
+  (main-page                    hpcweb-configuration-main-page
+                                (default "/"))
+
   (guix-command                 hpcweb-configuration-guix-command
                                 (default "guix"))
   (package-filter-proc          hpcweb-configuration-package-filter-proc
