@@ -75,8 +75,7 @@ vocabulary."
 (define (channel->json channel)
   "Return identifying information about CHANNEL suitable for JSON
 serialization."
-  `((name   . ,(channel-name channel))
-    (url    . ,(channel-home-page-url channel))))
+  `((name . ,(channel-name channel))))
 
 (define (inferior-package->json package)
   "Return meta-data for PACKAGE as an alist that can be converted to JSON."
