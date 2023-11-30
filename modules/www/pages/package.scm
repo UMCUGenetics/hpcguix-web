@@ -106,6 +106,13 @@ package."
   (char-set-complement (char-set #\/)))
 
 (define (page-package request-path site-config)
+  (define (version-history-link package)
+    (let ((url (string-append
+                "https://data.guix.gnu.org"
+                "/repository/1/branch/master/package/"
+                package)))
+      `(div "View " (a (@ (href ,url)) "version history") ".")))
+
   (match (string-tokenize request-path %not-slash)
     (("package" name)
      (let ((packages (sort (vhash-fold* cons '() name
@@ -160,6 +167,12 @@ package."
                                    ,(inferior-package-home-page instance)))))
                     (hr)))
                 packages)
+
+              ,(if (and=> (inferior-package-primary-channel (car packages))
+                          guix-channel?)
+                   (version-history-link name)
+                   "")
+
               ,(if (not (null? site-config))
                    (let ((func (hpcweb-configuration-package-page-extension-proc site-config)))
                      (func request-path))
