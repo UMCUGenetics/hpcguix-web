@@ -122,8 +122,13 @@ package."
                                         (inferior-package-version package2))))))
        (if (null? packages)
            (page-root-template "Oops!" request-path site-config
-                               `((h2 "Uh-oh...")
-                                 (p "The package is gone!")))
+                               (if (vlist-null?
+                                    (atomic-box-ref current-packages))
+                                   `((h2 "Please be patient...")
+                                     (p "Package data is being cooked and
+will be ready soon!"))
+                                   `((h2 "Uh-oh...")
+                                     (p "The package is gone!"))))
            (page-root-template
             (string-append "Details for " name) request-path
             site-config
