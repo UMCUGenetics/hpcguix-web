@@ -36,6 +36,7 @@
   #:use-module (zlib)
   #:export (current-packages
             inferior-package-channels
+            inferior-package-primary-channel
             channel-home-page-url
             maybe-update-package-file))
 
@@ -62,6 +63,14 @@ vocabulary."
 (define (inferior-package-channels package)
   "Return the list of channels PACKAGE, an inferior package, comes from."
   (map sexp->channel (inferior-package-provenance package)))
+
+(define (inferior-package-primary-channel package)
+  "Return the channel that presumably defines PACKAGE or #f if this could not
+be determined."
+  (match (inferior-package-channels package)
+    ((guix) guix)
+    (() #f)
+    (lst (find (negate guix-channel?) lst))))
 
 (define (channel-home-page-url channel)
   "Return the home page of CHANNEL."

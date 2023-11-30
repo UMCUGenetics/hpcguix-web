@@ -1,5 +1,5 @@
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
-;;; Copyright © 2017, 2018, 2019, 2021 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017-2019, 2021, 2023 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -80,10 +80,7 @@ vocabulary."
 package."
   (match (inferior-package-location package)
     ((? location? location)
-     (let* ((channel (match (inferior-package-channels package)
-                       ((guix) guix)
-                       (() #f)
-                       (lst (find (negate guix-channel?) lst))))
+     (let* ((channel (inferior-package-primary-channel package))
             (url     (and channel (channel-file-url channel location)))
             (str     (string-append (location-file location) ":"
                                     (number->string
