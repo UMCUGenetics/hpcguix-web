@@ -22,6 +22,7 @@
   #:use-module (guix ui)
   #:use-module ((guix utils)
                 #:select (location-file string-replace-substring))
+  #:autoload   (guix build utils) (mkdir-p)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 atomic)
   #:use-module (ice-9 threads)
@@ -99,6 +100,7 @@ Guix packages."
   (let* ((inferior (inferior-for-channels channels))
          (packages (inferior-packages inferior))
          (pivot    (string-append file ".part")))
+    (mkdir-p (dirname file))
     (call-with-output-file pivot
       (lambda (port)
         (call-with-gzip-output-port port

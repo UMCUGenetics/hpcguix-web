@@ -26,7 +26,7 @@
 (define %www-root
   (or (getenv "HPCGUIXWEB_WWW_ROOT")
       "@datarootdir@"))
-(define %www-cache-root (string-append (cache-directory) "/web"))
+(define %www-cache-root (string-append (cache-directory #:ensure? #f) "/web"))
 (define %www-static-root (string-append %www-root "/static"))
 (define %www-markdown-root (string-append %www-root "/markdown"))
 (define %www-max-file-size 250000000)
