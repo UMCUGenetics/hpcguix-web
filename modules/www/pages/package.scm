@@ -34,14 +34,20 @@
   #:use-module (texinfo html)
   #:export (page-package))
 
-(define (package-description-shtml package)
-  "Return an SXML representation of PACKAGE description field with HTML
+(define (package-blurb-shtml blurb)
+  (lambda (package)
+    "Return an SXML representation of PACKAGE description or synopsis with HTML
 vocabulary."
-  ;; 'texi-fragment->stexi' uses 'call-with-input-string', so make sure
-  ;; those string ports are Unicode-capable.
-  (with-fluids ((%default-port-encoding "UTF-8"))
-    (and=> (inferior-package-description package)
-           (compose stexi->shtml texi-fragment->stexi))))
+    ;; 'texi-fragment->stexi' uses 'call-with-input-string', so make sure
+    ;; those string ports are Unicode-capable.
+    (with-fluids ((%default-port-encoding "UTF-8"))
+      (and=> (blurb package)
+             (compose stexi->shtml texi-fragment->stexi)))))
+
+(define package-synopsis-shtml
+  (package-blurb-shtml inferior-package-synopsis))
+(define package-description-shtml
+  (package-blurb-shtml inferior-package-description))
 
 (define %vcs-web-views
   ;; Hard-coded list of host names and corresponding web view URL templates.
@@ -82,10 +88,8 @@ package."
     ((? location? location)
      (let* ((channel (inferior-package-primary-channel package))
             (url     (and channel (channel-file-url channel location)))
-            (str     (string-append (location-file location) ":"
-                                    (number->string
-                                     (location-line location))))
-            (body    `(code (@ (class "nobg")) ,str)))
+            (body    `(code (@ (class "nobg"))
+                            ,(location-file location))))
        `(span
          (code (@ (class "nobg"))
                ,(if url
@@ -132,7 +136,7 @@ will be ready soon!"))
            (page-root-template
             (string-append "Details for " name) request-path
             site-config
-            `((h2 "Package details of " (code (@ (class "h2-title")) ,name))
+            `((h2 ,(package-synopsis-shtml (car packages)))
               (p ,(package-description-shtml (car packages)))
               ,@(match packages
                   ((one)
@@ -146,11 +150,19 @@ will be ready soon!"))
                 (lambda (instance)
                   `((table (@ (style "width: 100%"))
                            (tr
+                            (td (strong "Package"))
+                            (td (b ,(inferior-package-name instance))))
+                           (tr
                             (td (strong "Version"))
                             (td ,(inferior-package-version instance)))
                            (tr
-                            (td (strong "Defined at"))
+                            (td (strong "Definition"))
                             (td ,(inferior-package-location-shtml instance)))
+                           (tr
+                            (td (strong "Home page"))
+                            (td (a (@ (href ,(inferior-package-home-page
+                                              instance)))
+                                   ,(inferior-package-home-page instance))))
                            (tr
                             (td (@ (style "width: 150pt")) (strong "Installation command"))
                             (td (pre (code (@ (class "bash"))
@@ -164,12 +176,7 @@ will be ready soon!"))
                                                  (string-append
                                                   "@"
                                                   (inferior-package-version instance))
-                                                 ""))))))
-                           (tr
-                            (td (strong "Home page"))
-                            (td (a (@ (href ,(inferior-package-home-page
-                                              instance)))
-                                   ,(inferior-package-home-page instance)))))
+                                                 "")))))))
                     (hr)))
                 packages)
 
