@@ -115,7 +115,7 @@ package."
                 "https://data.guix.gnu.org"
                 "/repository/1/branch/master/package/"
                 package)))
-      `(div "View " (a (@ (href ,url)) "version history") ".")))
+      `(a (@ (href ,url)) "history")))
 
   (match (string-tokenize request-path %not-slash)
     (("package" name)
@@ -154,7 +154,11 @@ will be ready soon!"))
                             (td (b ,(inferior-package-name instance))))
                            (tr
                             (td (strong "Version"))
-                            (td ,(inferior-package-version instance)))
+                            (td ,(inferior-package-version instance)
+                                ,@(if (and=> (inferior-package-primary-channel (car packages))
+                                            guix-channel?)
+                                      `(" (" ,(version-history-link name) ")")
+                                      '())))
                            (tr
                             (td (strong "Definition"))
                             (td ,(inferior-package-location-shtml instance)))
@@ -179,11 +183,6 @@ will be ready soon!"))
                                                  "")))))))
                     (hr)))
                 packages)
-
-              ,(if (and=> (inferior-package-primary-channel (car packages))
-                          guix-channel?)
-                   (version-history-link name)
-                   "")
 
               ,(if (not (null? site-config))
                    (let ((func (hpcweb-configuration-package-page-extension-proc site-config)))
