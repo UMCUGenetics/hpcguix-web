@@ -25,7 +25,8 @@
      (p (strong "ProTip:") " The search field takes regular expressions."
         "  For example, when searching for R, " (code "^r") " provides far"
         " better results than “just” " (code "r") ".  "
-        "You can also restrict results to a specific channel—e.g., "
+        "You can also restrict results to a specific "
+        (a (@ (href "/channels")) "channel") "—e.g., "
         (code "channel:guix-science") ".")
      (p "")
      (form
