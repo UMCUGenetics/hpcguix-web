@@ -64,7 +64,8 @@ SXML."
             `("The " (code ,(channel-name channel))
               " channel provides "
               (a (@ (href ,(string-append main "?q=channel:"
-                                          (channel-name channel))))
+                                          (symbol->string
+                                           (channel-name channel)))))
                  "additional packages") ".  "
               "It can be obtained "
               "by writing a "
