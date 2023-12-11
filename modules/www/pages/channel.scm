@@ -17,6 +17,7 @@
 (define-module (www pages channel)
   #:use-module (hpcweb-configuration)
   #:use-module (www pages)
+  #:autoload   (www util) (manual-url)
   #:autoload   (www pages error) (page-error-404)
   #:autoload   (www packages) (channel-home-page-url)
   #:use-module (guix channels)
@@ -29,11 +30,6 @@
   #:use-module (ice-9 pretty-print)
   #:use-module (web uri)
   #:export (page-channel))
-
-(define (manual-url page)
-  "Return the complete URL to PAGE in the Guix reference manual."
-  (string-append "https://guix.gnu.org/manual/en/html_node/"
-                 page ".html"))
 
 (define %scheme-lexer
   (delay (make-scheme-lexer (cons "channel" %default-special-symbols)

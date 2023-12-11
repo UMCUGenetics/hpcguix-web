@@ -1,5 +1,6 @@
 ;;; Copyright © 2016  Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2016  Ricardo Wurmus <rekado@elephly.net>
+;;; Copyright © 2023  Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -18,7 +19,8 @@
 (define-module (www util)
   #:use-module (srfi srfi-1)
   #:export (file-extension
-            string-replace-occurrence))
+            string-replace-occurrence
+            manual-url))
 
 (define (file-extension file-name)
   (last (string-split file-name #\.)))
@@ -26,3 +28,7 @@
 (define (string-replace-occurrence str occurrence alternative)
   (string-map (lambda (x) (if (eq? x occurrence) alternative x)) str))
 
+(define (manual-url page)
+  "Return the complete URL to PAGE in the Guix reference manual."
+  (string-append "https://guix.gnu.org/manual/en/html_node/"
+                 page ".html"))
