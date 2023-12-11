@@ -25,6 +25,8 @@
   #:autoload   (syntax-highlight scheme) (make-scheme-lexer
                                           %default-special-prefixes
                                           %default-special-symbols)
+  #:autoload   (texinfo) (texi-fragment->stexi)
+  #:autoload   (texinfo html) (stexi->shtml)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 match)
   #:use-module (ice-9 pretty-print)
@@ -48,6 +50,18 @@ SXML."
   (define main
     (hpcweb-configuration-main-page config))
 
+  (define description
+    (find (lambda (description)
+            (eq? (channel-description-name description)
+                 (channel-name channel)))
+          (hpcweb-configuration-channel-descriptions config)))
+
+  (define (link . args)
+    (let ((home (or (and description
+                         (channel-description-home-page description))
+                    (channel-url channel))))
+      `(a (@ (href ,home)) ,@args)))
+
   `(p ,@(if (guix-channel? channel)
             `("The " (code "guix") " channel is the main Guix channel, "
               "providing "
@@ -61,39 +75,76 @@ SXML."
 
               (pre (code (@ (class "scheme"))
                          ,(scheme->sxml (channel->code channel)))))
-            `("The " (code ,(channel-name channel))
-              " channel provides "
-              (a (@ (href ,(string-append main "?q=channel:"
-                                          (symbol->string
-                                           (channel-name channel)))))
-                 "additional packages") ".  "
-              "It can be obtained "
-              "by writing a "
-              (a (@ (href ,(manual-url "Specifying-Additional-Channels")))
-                 "snippet")
-              " along these lines"
-              " to " (code "~/.config/guix/channels.scm") " and then running "
-              (a (@ (href ,(manual-url "Invoking-guix-pull")))
-                 (code "guix pull"))
-              ":"
+            `((h3 ,(or (and description
+                            (and=> (channel-description-synopsis description)
+                                   (compose stexi->shtml
+                                            texi-fragment->stexi)))
+                       ""))
 
-              (pre (code (@ (class "scheme"))
-                         ,(scheme->sxml
-                           `(append (list ,(channel->code channel))
-                                    %default-channels))))))
+              ("The "
+               ,(link `(code ,(channel-name channel)) " channel")
+               " provides "
+               (a (@ (href ,(string-append main "?q=channel:"
+                                           (symbol->string
+                                            (channel-name channel)))))
+                  "additional packages") ".  "
+               "It can be obtained "
+               "by writing a "
+               (a (@ (href ,(manual-url "Specifying-Additional-Channels")))
+                  "snippet")
+               " along these lines"
+               " to " (code "~/.config/guix/channels.scm") " and then running "
+               (a (@ (href ,(manual-url "Invoking-guix-pull")))
+                  (code "guix pull"))
+               ":"
 
-      "You can also " (a (@ (href ,(channel-home-page-url channel)))
-                         "browse its source repository")
-      ".  "
+               (pre (code (@ (class "scheme"))
+                          ,(scheme->sxml
+                            `(append (list ,(channel->code channel))
+                                     %default-channels)))))))
 
-      ,@(if (guix-channel? channel)
-            '()
-            `("Additional settings may be needed to obtain "
-              (a (@ (href ,(manual-url
-                            "Getting-Substitutes-from-Other-Servers")))
-                 "substitutes")
-              " (pre-built binaries) for packages in that channel—check "
-              "out the channel’s documentation."))))
+      (p "You can also "
+         (a (@ (href ,(channel-home-page-url channel)))
+            "browse its source repository")
+         ".  ")
+
+      ,(if (guix-channel? channel)
+           ""
+           (match (if description
+                      (channel-description-substitutes description)
+                      '())
+             (()
+              `(p "Additional settings may be needed to obtain "
+                  (a (@ (href ,(manual-url
+                                "Getting-Substitutes-from-Other-Servers")))
+                     "substitutes")
+                  " (pre-built binaries) for packages in that channel—check "
+                  "out the channel’s documentation."))
+             (((urls . keys) ...)
+              `(p "To obtain " (em "substitutes") " (pre-built binaries) "
+                  "for the packages provided by this channel, "
+                  (a (@ (href ,(manual-url
+                                "Getting-Substitutes-from-Other-Servers")))
+                     "configure your system")
+                  " to fetch substitutes from the URLs below "
+                  "and authorize the corresponding keys:"
+                  (table
+                   ,@(map (lambda (url key)
+                            `(tr (td (code ,url))
+                                 (td (pre
+                                      (code (@ (class "scheme"))
+                                            ,(highlights->sxml
+                                              (highlight (force %scheme-lexer)
+                                                         key)))))))
+                          urls keys))))))
+
+      ,(if (and description
+                (channel-description-ci-url description))
+           `(p "Check out this channel's "
+               (a (@ (href ,(channel-description-ci-url description)))
+                  "continuous integration status")
+               ".")
+           "")))
 
 (define %not-slash
   (char-set-complement (char-set #\/)))

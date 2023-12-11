@@ -21,14 +21,49 @@
   #:autoload   (www util) (manual-url)
   #:use-module (guix channels)
   #:use-module (srfi srfi-1)
+  #:autoload   (texinfo) (texi-fragment->stexi)
+  #:autoload   (texinfo html) (stexi->shtml)
   #:use-module (ice-9 match)
   #:export (page-channels))
 
-(define (channel-list-shtml channels)
+(define (channel-list-shtml channels descriptions)
+  "Return SHTML listing @var{channels}, using metadata from
+@var{descriptions}, a list of @code{channel-description} records."
   (define (channel-row channel)
-    (let ((name (symbol->string (channel-name channel))))
-      `(tr (a (@ (href ,(string-append "/channel/" name)))
-              (code ,name)))))
+    (let* ((description (find (lambda (description)
+                                (eq? (channel-description-name description)
+                                     (channel-name channel)))
+                              descriptions))
+           (name (symbol->string (channel-name channel)))
+           (logo (and description
+                      (channel-description-logo-url description)
+                      `(img (@ (src ,(channel-description-logo-url
+                                      description))
+                               (alt "Logo of the channel")
+                               (style
+                                   "max-width: 64px; max-height: 64px"))))))
+      `(tr (td ,(or logo ""))
+           (td (a (@ (href ,(string-append "/channel/" name)))
+                  (code ,name)))
+           (td ,(or (and description
+                         (and=> (channel-description-synopsis description)
+                                (compose stexi->shtml texi-fragment->stexi)))
+                    ""))
+           (td ,(if (and description
+                         (channel-description-ci-url
+                          description))
+                    (let ((body (if (channel-description-ci-badge
+                                     description)
+                                    `(img (@ (src
+                                              ,(channel-description-ci-badge
+                                                description))
+                                             (alt
+                                              "Badge showing the continuous
+integration status of this channel.")))
+                                    "status")))
+                      `(a (@ (href ,(channel-description-ci-url description)))
+                          ,body))
+                    "")))))
 
   `(table ,@(map channel-row channels)))
 
@@ -49,6 +84,8 @@
         ":"
 
         (p
-         ,(channel-list-shtml (hpcweb-configuration-channels config))))))
+         ,(channel-list-shtml
+           (hpcweb-configuration-channels config)
+           (hpcweb-configuration-channel-descriptions config))))))
     (_                                            ;invalid URI path
      (page-error-404 request-path config))))
