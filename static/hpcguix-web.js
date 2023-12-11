@@ -94,7 +94,7 @@ var hpcguix = (function () {
 
 	// The search field might already have a value: take it into
 	// account.
-	$('#search-field').trigger('keyup');
+	$('#search-field').trigger('input');
     }
 
     // Initialize the packages table.
