@@ -169,12 +169,16 @@ Guix packages."
                            0))))
                    inferior)
 
+    (format #t "new inferior is up and running (PID ~a)~%"
+            (inferior-eval '(getpid) inferior))
+
     ;; Keep INFERIOR around so that operations on CURRENT-PACKAGES, such as
     ;; calls to 'inferior-package-description', succeed (there's a time
     ;; window during which this is out-of-sync compared to CURRENT-PACKAGES,
     ;; but it doesn't matter much.)
     (let ((previous (atomic-box-swap! current-inferior inferior)))
       (when previous
+        (format #t "terminating previous inferior~%")
         (close-inferior previous)))))
 
 (define* (maybe-update-package-file file channels
