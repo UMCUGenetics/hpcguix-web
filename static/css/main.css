@@ -293,3 +293,89 @@ img { border: none; }
 
 #footer-box a { color: #333333; }
 #footer-box a:visited { color: #333333; }
+
+
+/* Channel descriptions.  CSS by Ricardo Wurmus for <https://gnu.tools>.  */
+
+ul.cards {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 0;
+}
+
+li.card::before,
+li.person::before {
+    content: '';
+}
+
+li.card {
+    width: 300px;
+    display: block;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    margin: 1em 1em 0 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    background: #fefefe;
+}
+
+li.card .card-header {
+    border-bottom: 1px dotted #aaa;
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+}
+li.card .card-header a {
+    border: none;
+}
+
+li.card .card-header img.project-logo {
+    max-height: 64px;
+    max-width: 64px;
+    margin-right: 0.5em;
+    border-radius: 5px;
+    margin: 10px;
+}
+li.card .card-body {
+    padding: 1em;
+}
+
+details summary {
+    cursor: pointer;
+    color: #4D4D4D;
+    font-size: smaller;
+}
+
+details summary > * {
+    display: inline;
+}
+
+details[open] summary ~ * {
+    animation: sweep .5s ease-in-out;
+}
+@keyframes sweep {
+    0%    {opacity: 0; margin-top: -10px}
+    100%  {opacity: 1; margin-top: 0px}
+}
+
+details div.channel-data {
+    padding: 0;
+    margin-top: 0;
+    /* display: inline-block; */
+    font-size: smaller;
+    line-height: 1.2em;
+}
+
+a.ci-status {
+    display: block;
+    text-decoration: none;
+    border-style: none;
+    height: 2em;
+    padding: 0.8em 0 0.8em 0;
+}
+
+img.ci-badge {
+    height: 1.3em;
+}

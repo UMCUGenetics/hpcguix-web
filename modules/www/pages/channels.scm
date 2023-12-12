@@ -29,43 +29,48 @@
 (define (channel-list-shtml channels descriptions)
   "Return SHTML listing @var{channels}, using metadata from
 @var{descriptions}, a list of @code{channel-description} records."
-  (define (channel-row channel)
-    (let* ((description (find (lambda (description)
-                                (eq? (channel-description-name description)
-                                     (channel-name channel)))
-                              descriptions))
-           (name (symbol->string (channel-name channel)))
-           (logo (and description
-                      (channel-description-logo-url description)
-                      `(img (@ (src ,(channel-description-logo-url
-                                      description))
-                               (alt "Logo of the channel")
-                               (style
-                                   "max-width: 64px; max-height: 64px"))))))
-      `(tr (td ,(or logo ""))
-           (td (a (@ (href ,(string-append "/channel/" name)))
-                  (code ,name)))
-           (td ,(or (and description
-                         (and=> (channel-description-synopsis description)
-                                (compose stexi->shtml texi-fragment->stexi)))
-                    ""))
-           (td ,(if (and description
-                         (channel-description-ci-url
-                          description))
-                    (let ((body (if (channel-description-ci-badge
-                                     description)
-                                    `(img (@ (src
-                                              ,(channel-description-ci-badge
-                                                description))
-                                             (alt
-                                              "Badge showing the continuous
-integration status of this channel.")))
-                                    "status")))
-                      `(a (@ (href ,(channel-description-ci-url description)))
-                          ,body))
-                    "")))))
+  (define (channel-shtml channel)
+    (define description
+      (find (lambda (description)
+              (eq? (channel-description-name description)
+                   (channel-name channel)))
+            descriptions))
 
-  `(table ,@(map channel-row channels)))
+    (define url
+      (string-append "/channel/"
+                     (symbol->string (channel-name channel))))
+
+    `(li (@ (class "card"))
+         (div (@ (class "card-header"))
+              (a (@ (href ,url))
+                 (img (@ (class "project-logo")
+                         (src ,(channel-description-logo-url description))
+                         (alt ,(string-append
+                                "Logo for the "
+                                (symbol->string
+                                 (channel-name channel))
+                                " channel")))))
+              (a (@ (href ,url))
+                 ,(symbol->string (channel-name channel))))
+         (div (@ (class "card-body"))
+              ,(or (and description
+                        (and=> (channel-description-synopsis description)
+                               (compose stexi->shtml texi-fragment->stexi)))
+                   "")
+
+              ,@(if (and description (channel-description-ci-url description))
+                    `((a (@ (class "ci-status")
+                            (href ,(channel-description-ci-url description)))
+                         ,(if (channel-description-ci-badge description)
+                              `(img (@ (class "ci-badge")
+                                       (src ,(channel-description-ci-badge
+                                              description))
+                                       (alt "Continuous integration badge.")))
+                              "continuous integration")))
+                    '()))))
+
+  `(ul (@ (class "cards"))
+       ,@(map channel-shtml channels)))
 
 (define %not-slash
   (char-set-complement (char-set #\/)))
@@ -78,14 +83,13 @@ integration status of this channel.")))
       request-path config
       `((h2 "Channels")
 
-        "This service knows about packages provided by the following "
+        "This service knows about packages provided by the "
         (a (@ (href ,(manual-url "Channels")))
            (em "channels"))
-        ":"
+        " listed below."
 
-        (p
-         ,(channel-list-shtml
-           (hpcweb-configuration-channels config)
-           (hpcweb-configuration-channel-descriptions config))))))
+        ,(channel-list-shtml
+          (hpcweb-configuration-channels config)
+          (hpcweb-configuration-channel-descriptions config)))))
     (_                                            ;invalid URI path
      (page-error-404 request-path config))))
