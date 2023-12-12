@@ -61,7 +61,7 @@
   (home-page      channel-description-home-page
                   (default #f))
   (logo-url       channel-description-logo-url
-                  (default #f))
+                  (default "/static/images/favicon.png"))
   (ci-badge       channel-description-ci-badge
                   (default #f))
   (ci-url         channel-description-ci-url
@@ -77,7 +77,6 @@
    (name 'guix)
    (synopsis "Main channel, providing Guix itself and a large collection of packages")
    (home-page "https://guix.gnu.org")
-   (logo-url "https://guix.gnu.org/static/base/img/icon.svg")
    (ci-url "https://ci.guix.gnu.org/jobset/master")
    (ci-badge (string-append ci-url "/badge.svg"))
    (substitutes
