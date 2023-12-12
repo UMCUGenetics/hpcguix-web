@@ -37,6 +37,7 @@
   #:export (current-packages
             inferior-package-channels
             inferior-package-primary-channel
+            channel-package-count
             channel-home-page-url
             maybe-update-package-file))
 
@@ -71,6 +72,14 @@ be determined."
     ((guix) guix)
     (() #f)
     (lst (find (negate guix-channel?) lst))))
+
+(define (channel-package-count channel)
+  "Return the number of packages in CHANNEL, or #f if it could not be
+determined."
+  (let ((inferior (atomic-box-ref current-inferior)))
+    (and inferior
+         (inferior-eval `(channel-package-count ',(channel-name channel))
+                        inferior))))
 
 (define (channel-home-page-url channel)
   "Return the home page of CHANNEL."
@@ -129,6 +138,36 @@ Guix packages."
                                          package table))
                            vlist-null
                            packages))
+
+    ;; Evaluate code to compute and memoize the number of packages in a given
+    ;; channel.
+    (inferior-eval '(begin
+                      (use-modules (guix describe)
+                                   (guix packages)
+                                   (guix channels)
+                                   (guix memoization)
+                                   (gnu packages)
+                                   (ice-9 match)
+                                   (srfi srfi-1))
+
+                      (define channel-package-count
+                        (mlambdaq (name)
+                          "Return the number of packages in channel NAME."
+                          (define (primary-channel package)
+                            (match (package-channels package)
+                              ((guix) guix)
+                              (() #f)
+                              (lst (find (negate guix-channel?) lst))))
+
+                          (fold-packages
+                           (lambda (package total)
+                             (let ((channel (primary-channel package)))
+                               (if (and channel
+                                        (eq? (channel-name channel) name))
+                                   (+ 1 total)
+                                   total)))
+                           0))))
+                   inferior)
 
     ;; Keep INFERIOR around so that operations on CURRENT-PACKAGES, such as
     ;; calls to 'inferior-package-description', succeed (there's a time
