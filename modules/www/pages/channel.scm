@@ -19,7 +19,7 @@
   #:use-module (www pages)
   #:autoload   (www util) (manual-url)
   #:autoload   (www pages error) (page-error-404)
-  #:autoload   (www packages) (channel-home-page-url)
+  #:autoload   (www packages) (channel-home-page-url channel-package-count)
   #:use-module (guix channels)
   #:autoload   (syntax-highlight) (highlights->sxml highlight)
   #:autoload   (syntax-highlight scheme) (make-scheme-lexer
@@ -63,11 +63,16 @@ SXML."
                     (channel-url channel))))
       `(a (@ (href ,home)) ,@args)))
 
+  (define count
+    (channel-package-count channel))
+
   `(p ,@(if (guix-channel? channel)
             `("The " (code "guix") " channel is the main Guix channel, "
               "providing "
               (a (@ (href ,(string-append main "?q=channel:guix")))
-                 "many packages")
+                 ,(if count
+                      (format #f "~h packages" count)
+                      "many packages"))
               " but also the core Guix modules "
               "and commands.  It is provided by default and "
               (a (@ (href ,(manual-url "Channels")))
@@ -88,7 +93,10 @@ SXML."
                (a (@ (href ,(string-append main "?q=channel:"
                                            (symbol->string
                                             (channel-name channel)))))
-                  "additional packages") ".  "
+                  ,(if count
+                       (format #f "~h packages" count)
+                       "additional packages"))
+               ".  "
                "It can be obtained "
                "by writing a "
                (a (@ (href ,(manual-url "Specifying-Additional-Channels")))
