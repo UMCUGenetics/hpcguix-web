@@ -18,15 +18,17 @@
   #:use-module (hpcweb-configuration)
   #:use-module (www pages)
   #:autoload   (www pages error) (page-error-404)
+  #:autoload   (www packages) (channel-package-count)
   #:autoload   (www util) (manual-url)
   #:use-module (guix channels)
   #:use-module (srfi srfi-1)
   #:autoload   (texinfo) (texi-fragment->stexi)
   #:autoload   (texinfo html) (stexi->shtml)
+  #:use-module (ice-9 format)
   #:use-module (ice-9 match)
   #:export (page-channels))
 
-(define (channel-list-shtml channels descriptions)
+(define (channel-list-shtml main-page channels descriptions)
   "Return SHTML listing @var{channels}, using metadata from
 @var{descriptions}, a list of @code{channel-description} records."
   (define (channel-shtml channel)
@@ -39,6 +41,13 @@
     (define url
       (string-append "/channel/"
                      (symbol->string (channel-name channel))))
+
+    (define package-url
+      (string-append main-page "?q=channel:"
+                     (symbol->string (channel-name channel))))
+
+    (define count
+      (channel-package-count channel))
 
     `(li (@ (class "card"))
          (div (@ (class "card-header"))
@@ -56,6 +65,11 @@
               ,(or (and description
                         (and=> (channel-description-synopsis description)
                                (compose stexi->shtml texi-fragment->stexi)))
+                   "")
+
+              ,(if count
+                   `(p (a (@ (href ,package-url))
+                          ,(format #f "~h packages" count)))
                    "")
 
               ,@(if (and description (channel-description-ci-url description))
@@ -89,6 +103,7 @@
         " listed below."
 
         ,(channel-list-shtml
+          (hpcweb-configuration-main-page config)
           (hpcweb-configuration-channels config)
           (hpcweb-configuration-channel-descriptions config)))))
     (_                                            ;invalid URI path
