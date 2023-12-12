@@ -28,6 +28,7 @@
   #:autoload   (texinfo) (texi-fragment->stexi)
   #:autoload   (texinfo html) (stexi->shtml)
   #:use-module (srfi srfi-1)
+  #:use-module (ice-9 format)
   #:use-module (ice-9 match)
   #:use-module (ice-9 pretty-print)
   #:use-module (web uri)
@@ -126,8 +127,9 @@ SXML."
                   (a (@ (href ,(manual-url
                                 "Getting-Substitutes-from-Other-Servers")))
                      "configure your system")
-                  " to fetch substitutes from the URLs below "
-                  "and authorize the corresponding keys:"
+                  ,(format #f " to fetch substitutes from the URL~p below
+and authorize the corresponding key~p:"
+                           (length urls) (length keys))
                   (table
                    ,@(map (lambda (url key)
                             `(tr (td (code ,url))
