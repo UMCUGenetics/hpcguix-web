@@ -94,15 +94,7 @@ package."
          (code (@ (class "nobg"))
                ,(if url
                     `(a (@ (href ,url)) ,body)
-                    body))
-         ,@(if channel
-               `(" ("
-                 (a (@ (href ,(string-append "/channel/"
-                                             (symbol->string
-                                              (channel-name channel)))))
-                    ,(channel-name channel))
-                 " channel)")
-               '()))))
+                    body)))))
     (#f
      "unknown location")))
 
@@ -148,6 +140,9 @@ will be ready soon!"))
 
               ,(map
                 (lambda (instance)
+                  (define channel
+                    (inferior-package-primary-channel instance))
+
                   `((table (@ (style "width: 100%"))
                            (tr
                             (td (strong "Package"))
@@ -155,10 +150,18 @@ will be ready soon!"))
                            (tr
                             (td (strong "Version"))
                             (td ,(inferior-package-version instance)
-                                ,@(if (and=> (inferior-package-primary-channel (car packages))
-                                            guix-channel?)
+                                ,@(if (and=> channel guix-channel?)
                                       `(" (" ,(version-history-link name) ")")
                                       '())))
+                           ,@(if channel
+                                 `((tr (td (strong "Channel"))
+                                       (td (a (@ (href
+                                                  ,(string-append
+                                                    "/channel/"
+                                                    (symbol->string
+                                                     (channel-name channel)))))
+                                              ,(channel-name channel)))))
+                                 '())
                            (tr
                             (td (strong "Definition"))
                             (td ,(inferior-package-location-shtml instance)))
