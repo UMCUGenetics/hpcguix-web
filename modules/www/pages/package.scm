@@ -143,6 +143,18 @@ will be ready soon!"))
                   (define channel
                     (inferior-package-primary-channel instance))
 
+                  (define description
+                    (and channel
+                         (find (lambda (description)
+                                 (eq? (channel-description-name description)
+                                      (channel-name channel)))
+                               (hpcweb-configuration-channel-descriptions
+                                site-config))))
+
+                  (define build-status-url
+                    (and description
+                         (channel-description-ci-package-url description)))
+
                   `((table (@ (style "width: 100%"))
                            (tr
                             (td (strong "Package"))
@@ -165,6 +177,19 @@ will be ready soon!"))
                            (tr
                             (td (strong "Definition"))
                             (td ,(inferior-package-location-shtml instance)))
+
+                           ,@(let ((url (and build-status-url
+                                             (build-status-url
+                                              (inferior-package-name
+                                               instance)
+                                              (inferior-package-version
+                                               instance)))))
+                               (if url
+                                   `((tr
+                                      (td (strong "Build status"))
+                                      (td (a (@ (href ,url))
+                                             "view 🚧"))))
+                                   '()))
                            (tr
                             (td (strong "Home page"))
                             (td (a (@ (href ,(inferior-package-home-page

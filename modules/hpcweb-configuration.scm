@@ -22,6 +22,7 @@
             channel-description-logo-url
             channel-description-ci-url
             channel-description-ci-badge
+            channel-description-ci-package-url
             channel-description-substitutes
             channel-description-license
 
@@ -66,6 +67,8 @@
                   (default #f))
   (ci-url         channel-description-ci-url
                   (default #f))
+  (ci-package-url channel-description-ci-package-url
+                  (default #f))                 ;#f | string string -> string
   (substitutes    channel-description-substitutes
                   (default '()))                  ;list of URL/key pairs
   (license        channel-description-license
@@ -79,6 +82,10 @@
    (home-page "https://guix.gnu.org")
    (ci-url "https://ci.guix.gnu.org/eval/latest/dashboard?spec=master")
    (ci-badge "https://ci.guix.gnu.org/jobset/master/badge.svg")
+   (ci-package-url (lambda (package version)
+                     (string-append
+                      "https://ci.guix.gnu.org/search?query=spec:master%20"
+                      package "-" version)))
    (substitutes
     `(("https://ci.guix.gnu.org" . "\
 (public-key
