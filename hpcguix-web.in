@@ -297,9 +297,14 @@ procedure called to produce the page SXML."
 ;; This code runs the web server.
 
 (define (run-web-interface config address family port)
+  (define lock
+    (string-append %www-cache-root "/packages.json.gz.lock"))
+
   (mkdir-p %www-cache-root)
+  (false-if-exception (delete-file lock))
   (info (G_ "web page available at http://~a:~a/~%")
         (inet-ntop family address) port)
+
   (run-server (cut request-handler config <...>) 'http
               `(#:port ,port
                 #:family ,family
