@@ -78,7 +78,7 @@
    (synopsis "Main channel, providing Guix itself and a large collection of packages")
    (home-page "https://guix.gnu.org")
    (ci-url "https://ci.guix.gnu.org/eval/latest/dashboard?spec=master")
-   (ci-badge (string-append ci-url "/badge.svg"))
+   (ci-badge "https://ci.guix.gnu.org/jobset/master/badge.svg")
    (substitutes
     `(("https://ci.guix.gnu.org" . "\
 (public-key
