@@ -66,28 +66,30 @@ SXML."
   (define count
     (channel-package-count channel))
 
-  `(p ,@(if (guix-channel? channel)
-            `("The " (code "guix") " channel is the main Guix channel, "
-              "providing "
-              (a (@ (href ,(string-append main "?q=channel:guix")))
-                 ,(if count
-                      (format #f "~h packages" count)
-                      "many packages"))
-              " but also the core Guix modules "
-              "and commands.  It is provided by default and "
-              (a (@ (href ,(manual-url "Channels")))
-                 "defined")
-              " as follows:"
+  `(div
+    (h2 ,(or (and description
+                  (and=> (channel-description-synopsis description)
+                         (compose stexi->shtml texi-fragment->stexi)))
+             `(div "The " (code (@ (class "h2-title"))
+                                ,(channel-name channel))
+                   " channel")))
 
-              (pre (code (@ (class "scheme"))
-                         ,(scheme->sxml (channel->code channel)))))
-            `((h3 ,(or (and description
-                            (and=> (channel-description-synopsis description)
-                                   (compose stexi->shtml
-                                            texi-fragment->stexi)))
-                       ""))
+    (p ,@(if (guix-channel? channel)
+             `("The " (code "guix") " channel is the main Guix channel, "
+               "providing "
+               (a (@ (href ,(string-append main "?q=channel:guix")))
+                  ,(if count
+                       (format #f "~h packages" count)
+                       "many packages"))
+               " but also the core Guix modules "
+               "and commands.  It is provided by default and "
+               (a (@ (href ,(manual-url "Channels")))
+                  "defined")
+               " as follows:"
 
-              ("The "
+               (pre (code (@ (class "scheme"))
+                          ,(scheme->sxml (channel->code channel)))))
+             `("The "
                ,(link `(code ,(channel-name channel)) " channel")
                " provides "
                (a (@ (href ,(string-append main "?q=channel:"
@@ -110,51 +112,64 @@ SXML."
                (pre (code (@ (class "scheme"))
                           ,(scheme->sxml
                             `(append (list ,(channel->code channel))
-                                     %default-channels)))))))
+                                     %default-channels))))))
 
-      (p "You can also "
-         (a (@ (href ,(channel-home-page-url channel)))
-            "browse its source repository")
-         ".  ")
-
-      ,(if (guix-channel? channel)
-           ""
-           (match (if description
-                      (channel-description-substitutes description)
-                      '())
-             (()
-              `(p "Additional settings may be needed to obtain "
-                  (a (@ (href ,(manual-url
-                                "Getting-Substitutes-from-Other-Servers")))
-                     "substitutes")
-                  " (pre-built binaries) for packages in that channel—check "
-                  "out the channel’s documentation."))
-             (((urls . keys) ...)
-              `(p "To obtain " (em "substitutes") " (pre-built binaries) "
-                  "for the packages provided by this channel, "
-                  (a (@ (href ,(manual-url
-                                "Getting-Substitutes-from-Other-Servers")))
-                     "configure your system")
-                  ,(format #f " to fetch substitutes from the URL~p below
+       ,(if (guix-channel? channel)
+            ""
+            (match (if description
+                       (channel-description-substitutes description)
+                       '())
+              (()
+               `(p "Additional settings may be needed to obtain "
+                   (a (@ (href ,(manual-url
+                                 "Getting-Substitutes-from-Other-Servers")))
+                      "substitutes")
+                   " (pre-built binaries) for packages in that channel—check "
+                   "out the channel’s documentation."))
+              (((urls . keys) ...)
+               `(p "To obtain " (em "substitutes") " (pre-built binaries) "
+                   "for the packages provided by this channel, "
+                   (a (@ (href ,(manual-url
+                                 "Getting-Substitutes-from-Other-Servers")))
+                      "configure your system")
+                   ,(format #f " to fetch substitutes from the URL~p below
 and authorize the corresponding key~p:"
-                           (length urls) (length keys))
-                  (table
-                   ,@(map (lambda (url key)
-                            `(tr (td (code ,url))
-                                 (td (pre
-                                      (code (@ (class "scheme"))
-                                            ,(highlights->sxml
-                                              (highlight (force %scheme-lexer)
-                                                         key)))))))
-                          urls keys))))))
+                            (length urls) (length keys))
+                   (table
+                    ,@(map (lambda (url key)
+                             `(tr (td (code ,url))
+                                  (td (pre
+                                       (code (@ (class "scheme"))
+                                             ,(highlights->sxml
+                                               (highlight (force %scheme-lexer)
+                                                          key)))))))
+                           urls keys))))))
 
-      ,(if (and description
-                (channel-description-ci-url description))
-           `(p "Check out this channel's "
-               (a (@ (href ,(channel-description-ci-url description)))
-                  "continuous integration status")
-               ".")
-           "")))
+       (hr)
+       (table
+        (tr (td "Source")
+            (td (a (@ (href ,(channel-home-page-url channel)))
+                   ,(channel-home-page-url channel))))
+        (tr (td "Packages")
+            (td (a (@ (href ,(string-append main "?q=channel:"
+                                            (symbol->string
+                                             (channel-name channel)))))
+                   ,(if count
+                        (format #f "~h packages" count)
+                        "view"))))
+        (tr (td "Continuous integration")
+            (td ,(if (and description
+                          (channel-description-ci-url description))
+                     `(a (@ (class "ci-status")
+                            (href ,(channel-description-ci-url description)))
+                         ,(if (channel-description-ci-badge description)
+                              `(img (@ (class "ci-badge")
+                                       (src ,(channel-description-ci-badge
+                                              description))
+                                       (alt "Continuous integration badge.")))
+                              "status"))
+                     "—"))))
+       (hr))))
 
 (define %not-slash
   (char-set-complement (char-set #\/)))
@@ -169,9 +184,7 @@ and authorize the corresponding key~p:"
            (page-root-template
             (string-append "Channel " (symbol->string name))
             request-path config
-            `((h2 "The " (code (@ (class "h2-title")) ,name)
-                  " channel")
-              ,(channel-description-shtml channel config)))
+            (channel-description-shtml channel config))
            (page-error-404 request-path config))))
     (_                                            ;invalid URI path
      (page-error-404 request-path config))))
