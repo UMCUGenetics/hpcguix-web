@@ -394,6 +394,8 @@ upon failure."
        (config      (if config-file
                         (load-configuration config-file)
                         (hpcweb-configuration))))
+  (setvbuf (current-output-port) 'line)
+  (setvbuf (current-error-port) 'line)
   (run-web-interface config (assoc-ref options 'address)
                      (assoc-ref options 'family)
                      (assoc-ref options 'port)))
