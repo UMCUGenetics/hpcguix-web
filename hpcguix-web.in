@@ -229,8 +229,17 @@ procedure called to produce the page SXML."
              (resolve-interface `(www pages ,(string->symbol token)))))
            (_ #f))))
 
+  (define ttl
+    ;; The welcome page rarely changes; other pages might change but only
+    ;; when the package list is updated.
+    (if welcome?
+        (* 12 3600)
+        (inexact->exact
+         (quotient (hpcweb-configuration-package-list-expiration config) 2))))
+
   (if (or welcome? module)
-      (values '((content-type . (text/html))
+      (values `((content-type . (text/html))
+                (cache-control . ((max-age . ,ttl)))
                 (content-security-policy . "frame-ancestors 'none';"))
               (call-with-output-string
                 (lambda (port)
