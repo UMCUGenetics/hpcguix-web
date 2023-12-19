@@ -169,6 +169,14 @@ Guix packages."
                            0))))
                    inferior)
 
+    ;; Counting packages takes several seconds, so do this upfront so that
+    ;; rendering /channels doesn't take too long.
+    (format #t "counting packages for ~a channels...~%"
+            (length channels))
+    (inferior-eval `(for-each channel-package-count
+                              ',(map channel-name channels))
+                   inferior)
+
     (format #t "new inferior is up and running (PID ~a)~%"
             (inferior-eval '(getpid) inferior))
 
