@@ -1,5 +1,5 @@
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
-;;; Copyright © 2017-2019, 2021, 2023 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017-2019, 2021, 2023-2024 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -80,6 +80,58 @@ vocabulary."
            (#f #f)
            ((_ template)
             (template url (channel-commit channel) location))))))
+
+(define inferior-package-field
+  (@@ (guix inferior) inferior-package-field))
+
+(define (inferior-package-archival-shtml package)
+  "Return SHTML representing the archival status of PACKAGE's source code or
+at least its URL."
+  (define (swh-revision-badge ref)
+    `(let ((commit (git-reference-commit ,ref))
+           (alt-text
+            "Badge showing source code archival at Software Heritage."))
+       (if (commit-id? commit)
+           `(a (@ (href ,(string-append
+                          "https://archive.softwareheritage.org/browse/revision/"
+                          commit "/")))
+               (img (@ (src
+                        ,(string-append
+                          "https://archive.softwareheritage.org/badge/revision/"
+                          commit "/"))
+                       (alt ,alt-text))))
+           (let ((query (string-append
+                         "?origin_url=" (uri-encode (git-reference-url ,ref))
+                         "&branch=refs/tags/" (uri-encode commit))))
+             `(a (@ (href ,(string-append
+                            "https://archive.softwareheritage.org/browse/origin/"
+                            query)))
+                 ;; XXX: The badge is an approximation: it doesn't tell us
+                 ;; whether this specific revision is archived.
+                 (img (@ (src
+                          ,(string-append
+                            "https://archive.softwareheritage.org/badge/origin/"
+                            (git-reference-url ,ref))) ;unencoded!
+                         (alt ,alt-text))))))))
+
+  (define (origin-url-link ref)
+    ;; TODO: Check whether REF is on disarchive.guix.gnu.org and on SWH.
+    `(let ((url (match ,ref
+                  ((? string? url) url)
+                  (((? string? url) _ ...) url)
+                  (_ #f))))
+       (if url
+           `(tt ,url)
+           "—")))
+
+  (inferior-package-field package
+                          `(lambda (package)
+                             (let ((source (package-source package)))
+                               (match (and (origin? source) (origin-uri source))
+                                 ((? git-reference? ref)
+                                  ,(swh-revision-badge 'ref))
+                                 (ref
+                                  ,(origin-url-link 'ref)))))))
 
 (define (inferior-package-location-shtml package)
   "Return SHTML denoting the source code location of PACKAGE, an inferior
@@ -195,6 +247,9 @@ will be ready soon!"))
                             (td (a (@ (href ,(inferior-package-home-page
                                               instance)))
                                    ,(inferior-package-home-page instance))))
+                           (tr
+                            (td (strong "Source"))
+                            (td ,(inferior-package-archival-shtml instance)))
                            (tr
                             (td (@ (style "width: 150pt")) (strong "Installation command"))
                             (td (pre (code (@ (class "bash"))

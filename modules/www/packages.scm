@@ -1,4 +1,4 @@
-;;; Copyright © 2017-2021, 2023 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017-2021, 2023-2024 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2016, 2017 Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2018 Pierre-Antoine Rouby <contact@parouby.fr>
 ;;;
@@ -138,6 +138,15 @@ Guix packages."
                                          package table))
                            vlist-null
                            packages))
+
+    ;; Import modules useful for source archival badges.
+    (inferior-eval '(use-modules (ice-9 match)
+                                 (guix download)
+                                 (guix git-download)
+                                 (guix svn-download)
+                                 ((guix git) #:select (commit-id?))
+                                 ((web uri) #:select (uri-encode)))
+                   inferior)
 
     ;; Evaluate code to compute and memoize the number of packages in a given
     ;; channel.
