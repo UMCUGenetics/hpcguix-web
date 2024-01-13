@@ -54,6 +54,7 @@ nobase_dist_assets_DATA =                               \
   static/images/g16.png                                 \
   static/images/grid.png                                \
   static/images/grid.svg                                \
+  static/images/not-archived.svg			\
   static/images/sort_asc.png                            \
   static/images/sort_asc_disabled.png                   \
   static/images/sort_both.png                           \

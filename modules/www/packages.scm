@@ -143,7 +143,7 @@ Guix packages."
     (inferior-eval '(use-modules (ice-9 match)
                                  (guix download)
                                  (guix git-download)
-                                 (guix svn-download)
+                                 (guix base32)
                                  ((guix git) #:select (commit-id?))
                                  ((web uri) #:select (uri-encode)))
                    inferior)

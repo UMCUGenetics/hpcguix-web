@@ -26,13 +26,27 @@
   #:use-module (guix channels)
   #:use-module (guix utils)
   #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-34)
   #:use-module (ice-9 vlist)
   #:use-module (ice-9 atomic)
   #:use-module (ice-9 match)
+  #:autoload   (ice-9 binary-ports) (get-bytevector-all)
+  #:autoload   (ice-9 textual-ports) (get-string-all)
+  #:autoload   (guix base16) (bytevector->base16-string)
+  #:autoload   (guix base32) (nix-base32-string->bytevector)
+  #:autoload   (guix http-client) (http-fetch/cached
+                                   http-get-error?
+                                   http-get-error-uri
+                                   http-get-error-code
+                                   http-get-error-reason)
   #:use-module (web uri)
+  #:use-module ((web request) #:select (request-uri))
+  #:use-module ((web response) #:select (build-response))
   #:use-module (texinfo)
   #:use-module (texinfo html)
-  #:export (page-package))
+  #:autoload   (zlib) (call-with-gzip-input-port)
+  #:export (page-package
+            request-package-source-badge-handler))
 
 (define (package-blurb-shtml blurb)
   (lambda (package)
@@ -87,10 +101,12 @@ vocabulary."
 (define (inferior-package-archival-shtml package)
   "Return SHTML representing the archival status of PACKAGE's source code or
 at least its URL."
+  (define alt-text
+    "Source code archival status at Software Heritage.")
+
   (define (swh-revision-badge ref)
     `(let ((commit (git-reference-commit ,ref))
-           (alt-text
-            "Badge showing source code archival at Software Heritage."))
+           (alt-text ,alt-text))
        (if (commit-id? commit)
            `(a (@ (href ,(string-append
                           "https://archive.softwareheritage.org/browse/revision/"
@@ -116,15 +132,18 @@ at least its URL."
                             (git-reference-url ,ref))) ;unencoded!
                          (alt ,alt-text))))))))
 
-  (define (origin-url-link ref)
-    ;; TODO: Check whether REF is on disarchive.guix.gnu.org and on SWH.
-    `(let ((url (match ,ref
-                  ((? string? url) url)
-                  (((? string? url) _ ...) url)
-                  (_ #f))))
-       (if url
-           `(tt ,url)
-           "—")))
+  (define (disarchive+swh-badge hash)
+    `(let ((algo+hash
+            (string-append (symbol->string
+                            (content-hash-algorithm ,hash))
+                           "/"
+                           (bytevector->nix-base32-string
+                            (content-hash-value ,hash)))))
+       `(a (@ (href ,(string-append "/package/source/" algo+hash
+                                    "/browse")))
+           (img (@ (src ,(string-append "/package/source/" algo+hash
+                                        "/badge"))
+                   (alt ,,alt-text))))))
 
   (inferior-package-field package
                           `(lambda (package)
@@ -132,8 +151,14 @@ at least its URL."
                                (match (and (origin? source) (origin-uri source))
                                  ((? git-reference? ref)
                                   ,(swh-revision-badge 'ref))
-                                 (ref
-                                  ,(origin-url-link 'ref)))))))
+                                 ((? string?)
+                                  ,(disarchive+swh-badge
+                                    '(origin-hash source)))
+                                 (((? string?) ...)
+                                  ,(disarchive+swh-badge
+                                    '(origin-hash source)))
+                                 (_
+                                  "—"))))))
 
 (define (inferior-package-location-shtml package)
   "Return SHTML denoting the source code location of PACKAGE, an inferior
@@ -151,6 +176,88 @@ package."
                     body)))))
     (#f
      "unknown location")))
+
+(define (disarchive-sexp->swhid sexp)
+  "Return the SWHID of the directory referenced by SEXP, a Disarchive sexp.
+Return #f if the SWHID could not be extracted."
+  ;; XXX: It would be cleaner to use Disarchive's interface for that, but in
+  ;; practice it seems to be good enough.
+  (match sexp
+    (('disarchive ('version 0)
+                  (_  ;(or 'gzip-member 'xz-file)
+                   _ ...
+                   ('input
+                    ('tarball
+                     _ ...
+                     ('input ('directory-ref
+                              ('version 0)
+                              ('name _)
+                              ('addresses ('swhid swhid) _ ...)
+                              _ ...))))))
+     swhid)
+    (_ #f)))
+
+(define (tarball-sha256->swhid sha256)
+  "Return the SWHID corresponding to SHA256, the hash of a tarball as a
+bytevector.  This works by looking up SHA256 on disarchive.guix.gnu.org."
+  (define (write-swhid-to-cache input output)
+    (let ((swhid (disarchive-sexp->swhid (read input))))
+      (when swhid
+        (display swhid output))))
+
+  (guard (c ((http-get-error? c)
+             (format (current-error-port) "GET ~s returned ~a (~s)~%"
+                     (uri->string (http-get-error-uri c))
+                     (http-get-error-code c)
+                     (http-get-error-reason c))
+             #f))
+    (let* ((url   (string-append "https://disarchive.guix.gnu.org/sha256/"
+                                 (bytevector->base16-string sha256)))
+           (port  (http-fetch/cached (string->uri url)
+                                     #:timeout 3
+                                     #:write-cache write-swhid-to-cache))
+           (swhid (get-string-all port)))
+      (close-port port)
+      (and (string-prefix? "swh:" swhid) swhid))))
+
+(define (request-package-source-badge-handler config request)
+  "Handle REQUEST, a GET request under /package/source.  Return two values:
+the response and its body."
+  (define (redirect url)
+    (let ((uri (string->uri url)))
+      (values (build-response #:code 301
+                              #:headers `((location . ,uri)))
+              "Redirecting to Software Heritage.")))
+
+  (match (string-tokenize (uri-path (request-uri request))
+                          %not-slash)
+    (("package" "source" "sha256" (= nix-base32-string->bytevector hash)
+      "badge")
+     (match (tarball-sha256->swhid hash)
+       (#f
+        ;; XXX: Would be nice to redirect to /badge/content/HASH but
+        ;; apparently that only works for SHA1 Git hashes.
+        (values (build-response #:code 200
+                                #:headers '((content-type
+                                             . (image/svg+xml))))
+                (call-with-input-file (string-append %www-static-root
+                                                     "/images/not-archived.svg")
+                  get-bytevector-all)))
+       (swhid
+        (redirect (string-append
+                   "https://archive.softwareheritage.org/badge/"
+                   swhid)))))
+    (("package" "source" "sha256" (= nix-base32-string->bytevector hash)
+      "browse")
+     (match (tarball-sha256->swhid hash)
+       (#f
+        (respond-404 config request))
+       (swhid
+        (redirect (string-append
+                   "https://archive.softwareheritage.org/browse/"
+                   swhid)))))
+    (_
+     (respond-404 config request))))
 
 (define %not-slash
   (char-set-complement (char-set #\/)))
