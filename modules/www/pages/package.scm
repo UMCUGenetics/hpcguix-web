@@ -102,7 +102,9 @@ at least its URL."
                        (alt ,alt-text))))
            (let ((query (string-append
                          "?origin_url=" (uri-encode (git-reference-url ,ref))
-                         "&branch=refs/tags/" (uri-encode commit))))
+                         ;; XXX: '&release=' only works for Git annotated tags.
+                         ;; For "plain" tags, '&branch=refs/tags/NAME' works.
+                         "&release=" (uri-encode commit))))
              `(a (@ (href ,(string-append
                             "https://archive.softwareheritage.org/browse/origin/"
                             query)))
