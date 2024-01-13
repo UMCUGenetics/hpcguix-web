@@ -68,16 +68,6 @@
 ;; In this section, the different handlers are implemented.
 ;;
 
-(define (respond-404 config request)
-  "Return 404 with a pretty HTML page."
-  (values (build-response #:code 404
-                          #:headers '((content-type . (text/html))))
-          (with-output-to-string
-            (lambda _
-              (sxml->xml
-               (page-error-404 (uri-path (request-uri request))
-                               config))))))
-
 (define (request-markdown-handler config request-path)
   (let ((file (string-append %www-markdown-root "/" request-path ".md")))
     (values

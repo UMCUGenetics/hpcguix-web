@@ -17,9 +17,14 @@
 (define-module (www pages error)
   #:use-module (www pages)
   #:use-module (www config)
+  #:use-module ((web request) #:select (request-uri))
+  #:use-module ((web response) #:select (build-response))
+  #:use-module ((web uri) #:select (uri-path))
+  #:use-module ((sxml simple) #:select (sxml->xml))
   #:export (page-error-404
             page-error-filesize
-            page-error))
+            page-error
+            respond-404))
 
 (define (page-error-404 request-path site-config)
   (page-root-template "Oops!" request-path site-config
@@ -31,3 +36,13 @@
                 (/ %www-max-file-size 1000000)))))
 
 (define page-error page-error-404)
+
+(define (respond-404 config request)
+  "Return 404 with a pretty HTML page."
+  (values (build-response #:code 404
+                          #:headers '((content-type . (text/html))))
+          (with-output-to-string
+            (lambda _
+              (sxml->xml
+               (page-error-404 (uri-path (request-uri request))
+                               config))))))
