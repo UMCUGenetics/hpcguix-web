@@ -20,7 +20,7 @@
   #:export (page-welcome))
 
 (define (page-welcome request-path site-config)
-  (page-root-template "Search" request-path site-config
+  (page-root-template "Search for packages" request-path site-config
    `((h2 "Find software packages")
      (p (strong "ProTip:") " The search field takes regular expressions."
         "  For example, when searching for R, " (code "^r") " provides far"

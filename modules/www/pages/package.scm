@@ -287,7 +287,7 @@ will be ready soon!"))
                                    `((h2 "Uh-oh...")
                                      (p "The package is gone!"))))
            (page-root-template
-            (string-append "Details for " name) request-path
+            (string-append "Package " name) request-path
             site-config
             `((h2 ,(package-synopsis-shtml (car packages)))
               (p ,(package-description-shtml (car packages)))
