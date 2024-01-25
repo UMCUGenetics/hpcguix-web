@@ -159,8 +159,11 @@
                           '())
                     (last-modified . ,(time-utc->date modified))
                     (cache-control . ((max-age . ,ttl))))
+                  ;; TODO: Avoid loading in memory.
                   (call-with-input-file full-path
-                    get-bytevector-all*))))
+                    (lambda (port)
+                      (setvbuf port 'block 65536)
+                      (get-bytevector-all* port))))))
 
     (cond ((not file-stat)
            (respond-404 config request))
