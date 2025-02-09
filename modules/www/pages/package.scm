@@ -1,5 +1,5 @@
 ;;; Copyright © 2016, 2017  Roel Janssen <roel@gnu.org>
-;;; Copyright © 2017-2019, 2021, 2023-2024 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017-2019, 2021, 2023-2025 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -80,6 +80,7 @@ vocabulary."
                          "#n" (number->string (location-line location)))))
       ("notabug.org" ,labhub-url)
       ("framagit.org" ,labhub-url)
+      ("codeberg.org" ,labhub-url)
       ("gitlab.com" ,labhub-url)
       ("gitlab.inria.fr" ,labhub-url)
       ("github.com" ,labhub-url))))
