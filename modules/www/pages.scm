@@ -40,7 +40,7 @@
                                 '())))))
 
 (define* (page-root-template title request-path site-config content-tree
-                             #:key (dependencies '()))
+                             #:key (dependencies '()) (preloads '()))
   `((html (@ (lang "en"))
      (head
       (title ,(string-append (if (not (null? site-config))
@@ -64,7 +64,12 @@
       (link (@ (rel "stylesheet")
                (href "/static/css/main.css")
                (type "text/css")
-               (media "screen"))))
+               (media "screen")))
+
+      ,@(map (lambda (url)
+               `(link (@ (rel "preload") (as "fetch") (href ,url))))
+             preloads))
+
      (body
       (div (@ (id "header"))
            (div (@ (id "header-inner")

@@ -48,4 +48,9 @@
                    (th "Synopsis")))))
      (script (@ (type "text/javascript")
                 (src "/static/hpcguix-web.min.js")) ""))
-   #:dependencies '(datatables)))
+   #:dependencies '(datatables)
+
+   ;; Start downloading the JSON file as soon as possible, possibly before JS
+   ;; has been fetched.  See
+   ;; <https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/preload>.
+   #:preloads '("/packages.json")))
