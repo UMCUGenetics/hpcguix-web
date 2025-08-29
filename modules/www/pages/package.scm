@@ -349,10 +349,8 @@ will be ready soon!"))
                   `((table (@ (style "width: 100%"))
                            (tr
                             (td (span (@ (class "package-field")) "Package"))
-                            (td (b ,(inferior-package-name instance))))
-                           (tr
-                            (td (span (@ (class "package-field")) "Version"))
-                            (td ,(inferior-package-version instance)
+                            (td (b ,(inferior-package-name instance) " "
+                                   ,(inferior-package-version instance))
                                 ,@(if (and=> channel guix-channel?)
                                       `(" (" ,(version-history-link name) ")")
                                       '())))
