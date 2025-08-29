@@ -386,21 +386,7 @@ will be ready soon!"))
                                    ,(inferior-package-home-page instance))))
                            (tr
                             (td (span (@ (class "package-field")) "Source"))
-                            (td ,(inferior-package-archival-shtml instance)))
-                           (tr
-                            (td (@ (style "width: 150pt")) (span (@ (class "package-field")) "Installation command"))
-                            (td (pre (code (@ (class "bash"))
-                                           (string-append
-                                            ,(if (not (null? site-config))
-                                                 (hpcweb-configuration-guix-command site-config)
-                                                 "guix")
-                                            " install "
-                                            ,name
-                                            ,(if (> (length packages) 1)
-                                                 (string-append
-                                                  "@"
-                                                  (inferior-package-version instance))
-                                                 "")))))))
+                            (td ,(inferior-package-archival-shtml instance))))
                     (hr)))
                 packages)
 
