@@ -89,6 +89,7 @@ vocabulary."
       ("notabug.org" ,labhub-url)
       ("framagit.org" ,labhub-url)
       ("codeberg.org" ,forgejo-url)
+      ("git.guix.gnu.org" ,forgejo-url)
       ("gitlab.com" ,labhub-url)
       ("gitlab.inria.fr" ,labhub-url)
       ("github.com" ,labhub-url))))
