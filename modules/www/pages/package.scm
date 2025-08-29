@@ -71,7 +71,14 @@ vocabulary."
                            (string-drop-right repository-url 4)
                            repository-url)
                        "/blob/" commit "/" (location-file location)
-                       "#L" (number->string (location-line location))))))
+                       "#L" (number->string (location-line location)))))
+        (forgejo-url (lambda (repository-url commit location)
+                       (string-append
+                        (if (string-suffix? ".git" repository-url)
+                            (string-drop-right repository-url 4)
+                            repository-url)
+                        "/src/commit/" commit "/" (location-file location)
+                        "#L" (number->string (location-line location))))))
     `(("git.savannah.gnu.org"
        ,(lambda (repository-url commit location)
           (string-append (string-replace-substring repository-url
@@ -80,7 +87,7 @@ vocabulary."
                          "#n" (number->string (location-line location)))))
       ("notabug.org" ,labhub-url)
       ("framagit.org" ,labhub-url)
-      ("codeberg.org" ,labhub-url)
+      ("codeberg.org" ,forgejo-url)
       ("gitlab.com" ,labhub-url)
       ("gitlab.inria.fr" ,labhub-url)
       ("github.com" ,labhub-url))))
