@@ -1,6 +1,6 @@
 ;;; hpcguix-web - Web interface for Guix
 ;;; Copyright © 2017 Ricardo Wurmus <rekado@elephly.net>
-;;; Copyright © 2023 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2023, 2025 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This file is part of hpcguix-web.
 ;;;
@@ -24,10 +24,10 @@
              (guix build-system gnu)
              (gnu packages)
              (gnu packages autotools)
-             (gnu packages certs)
              (gnu packages guile)
              (gnu packages guile-xyz)
              (gnu packages lisp-xyz)
+             (gnu packages nss)
              (gnu packages package-management)
              (gnu packages pkg-config))
 
