@@ -348,16 +348,16 @@ will be ready soon!"))
 
                   `((table (@ (style "width: 100%"))
                            (tr
-                            (td (strong "Package"))
+                            (td (span (@ (class "package-field")) "Package"))
                             (td (b ,(inferior-package-name instance))))
                            (tr
-                            (td (strong "Version"))
+                            (td (span (@ (class "package-field")) "Version"))
                             (td ,(inferior-package-version instance)
                                 ,@(if (and=> channel guix-channel?)
                                       `(" (" ,(version-history-link name) ")")
                                       '())))
                            ,@(if channel
-                                 `((tr (td (strong "Channel"))
+                                 `((tr (td (span (@ (class "package-field")) "Channel"))
                                        (td (a (@ (href
                                                   ,(string-append
                                                     "/channel/"
@@ -366,7 +366,7 @@ will be ready soon!"))
                                               ,(channel-name channel)))))
                                  '())
                            (tr
-                            (td (strong "Definition"))
+                            (td (span (@ (class "package-field")) "Definition"))
                             (td ,(inferior-package-location-shtml instance)))
 
                            ,@(let ((url (and build-status-url
@@ -377,20 +377,20 @@ will be ready soon!"))
                                                instance)))))
                                (if url
                                    `((tr
-                                      (td (strong "Build status"))
+                                      (td (span (@ (class "package-field")) "Build status"))
                                       (td (a (@ (href ,url))
                                              "view 🚧"))))
                                    '()))
                            (tr
-                            (td (strong "Home page"))
+                            (td (span (@ (class "package-field")) "Home page"))
                             (td (a (@ (href ,(inferior-package-home-page
                                               instance)))
                                    ,(inferior-package-home-page instance))))
                            (tr
-                            (td (strong "Source"))
+                            (td (span (@ (class "package-field")) "Source"))
                             (td ,(inferior-package-archival-shtml instance)))
                            (tr
-                            (td (@ (style "width: 150pt")) (strong "Installation command"))
+                            (td (@ (style "width: 150pt")) (span (@ (class "package-field")) "Installation command"))
                             (td (pre (code (@ (class "bash"))
                                            (string-append
                                             ,(if (not (null? site-config))

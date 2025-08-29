@@ -119,6 +119,10 @@ p + p {
     }
 }
 
+.package-field {
+    color: #766;
+}
+
 #header.frontpage {
     height: auto;
     margin-bottom: 1em;
