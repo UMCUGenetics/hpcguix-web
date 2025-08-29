@@ -39,6 +39,7 @@
                                    http-get-error-uri
                                    http-get-error-code
                                    http-get-error-reason)
+  #:autoload   (gnutls) (error->string)
   #:use-module (web uri)
   #:use-module ((web request) #:select (request-uri))
   #:use-module ((web response) #:select (build-response))
@@ -205,6 +206,16 @@ Return #f if the SWHID could not be extracted."
      swhid)
     (_ #f)))
 
+(define exception-with-kind-and-args?
+  (exception-predicate &exception-with-kind-and-args))
+
+(define (gnutls-error? c)
+  (and (exception-with-kind-and-args? c)
+       (eq? (exception-kind c) 'gnutls-error)))
+
+(define %disarchive-base-url
+  "https://disarchive.guix.gnu.org")
+
 (define (tarball-sha256->swhid sha256)
   "Return the SWHID corresponding to SHA256, the hash of a tarball as a
 bytevector.  This works by looking up SHA256 on disarchive.guix.gnu.org."
@@ -218,8 +229,18 @@ bytevector.  This works by looking up SHA256 on disarchive.guix.gnu.org."
                      (uri->string (http-get-error-uri c))
                      (http-get-error-code c)
                      (http-get-error-reason c))
+             #f)
+            ((gnutls-error? c)
+             (format (current-error-port) "TLS error while talking to ~a: ~a~%"
+                     %disarchive-base-url
+                     (error->string (car (exception-args c))))
+             #f)
+            (else
+             (format (current-error-port) "error while talking to ~a: ~s~%"
+                     %disarchive-base-url
+                     c)
              #f))
-    (let* ((url   (string-append "https://disarchive.guix.gnu.org/sha256/"
+    (let* ((url   (string-append %disarchive-base-url "/sha256/"
                                  (bytevector->base16-string sha256)))
            (port  (http-fetch/cached (string->uri url)
                                      #:timeout 3
