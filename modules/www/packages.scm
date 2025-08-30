@@ -1,4 +1,4 @@
-;;; Copyright © 2017-2021, 2023-2024 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2017-2021, 2023-2025 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2016, 2017 Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2018 Pierre-Antoine Rouby <contact@parouby.fr>
 ;;;
@@ -25,6 +25,7 @@
   #:autoload   (guix build utils) (mkdir-p)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 atomic)
+  #:use-module (ice-9 format)
   #:use-module (ice-9 threads)
   #:use-module (ice-9 vlist)
   #:use-module (ice-9 match)
@@ -196,7 +197,10 @@ Guix packages."
     (let ((previous (atomic-box-swap! current-inferior inferior)))
       (when previous
         (format #t "terminating previous inferior~%")
-        (close-inferior previous)))))
+        (close-inferior previous)))
+
+    (format #t "heap size: ~,2f MiB~%"
+            (/ (assoc-ref (gc-stats) 'heap-size) (expt 2. 20)))))
 
 (define* (maybe-update-package-file file channels
                                     #:key (select? (const #t))
