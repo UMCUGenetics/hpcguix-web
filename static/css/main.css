@@ -227,6 +227,7 @@ hr {
 }
 
 #content table {
+    font-size: inherit;
     border-spacing: 0px;
     padding: 0px;
 }
