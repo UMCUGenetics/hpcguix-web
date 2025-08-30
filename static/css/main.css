@@ -343,6 +343,11 @@ li.card .card-header img.project-logo {
     border-radius: 5px;
     margin: 10px;
 }
+
+li.card .card-header code {	/* channel substitutes */
+    margin: 10px;
+}
+
 li.card .card-body {
     padding: 1em;
 }

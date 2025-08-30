@@ -1,4 +1,4 @@
-;;; Copyright © 2023 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2023, 2025 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;; This program is free software: you can redistribute it and/or
 ;;; modify it under the terms of the GNU Affero General Public License
@@ -135,15 +135,18 @@ SXML."
                    ,(format #f " to fetch substitutes from the URL~p below
 and authorize the corresponding key~p:"
                             (length urls) (length keys))
-                   (table
-                    ,@(map (lambda (url key)
-                             `(tr (td (code ,url))
-                                  (td (pre
-                                       (code (@ (class "scheme"))
-                                             ,(highlights->sxml
-                                               (highlight (force %scheme-lexer)
-                                                          key)))))))
-                           urls keys))))))
+                   (ul (@ (class "cards"))
+                       ,@(map (lambda (url key)
+                                `(li (@ (class "card"))
+                                     (div (@ (class "card-header"))
+                                          (code ,url))
+                                     (div (@ (class "card-body"))
+                                          (pre
+                                           (code (@ (class "scheme"))
+                                                 ,(highlights->sxml
+                                                   (highlight (force %scheme-lexer)
+                                                              key)))))))
+                              urls keys))))))
 
        (hr)
        (table
